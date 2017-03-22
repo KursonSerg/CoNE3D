@@ -17,7 +17,7 @@ public:
         : CWindow(width, height, title)
         , m_angle(0.0)
         , m_speed(0.0)
-        , m_dir(EDirection::No)
+        , _movementDirection(EDirection::No)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
     }
@@ -31,7 +31,7 @@ public:
     virtual void Update(double delta) override;
     virtual void Render() override;
     virtual void Resize(int width, int height) override;
-    virtual void Key(int m_dir, int scancode, int action, int mods) override;
+    virtual void Key(int key, int scancode, int action, int mods) override;
     virtual void Cursor(double xpos, double ypos) override;
 
 private:
@@ -43,7 +43,7 @@ private:
     float     m_angle;
     double    m_speed;
 
-    EDirection m_dir;
+    EDirection _movementDirection;
 };
 
 void CWindowTest::Init()
@@ -62,31 +62,7 @@ void CWindowTest::Update(double delta)
         m_angle = 0.0f;
     }
 
-    float deltaTime = 0.1f;
-    float speed = 1.0f;
-
-    EDirection a;
-//    (int &)a |= 1;
-    a |= EDirection::Backward;
-
-    // Двигаемся вперед
-    if (has_flag(m_dir & EDirection::Forward)) {
-       m_camera.m_position += m_camera.m_direction * deltaTime * speed;
-    }
-    // Двигаемся назад
-    if (has_flag(m_dir & EDirection::Backward)) {
-       m_camera.m_position -= m_camera.m_direction * deltaTime * speed;
-    }
-    // Шаг влево
-    if (has_flag(m_dir & EDirection::Left)) {
-       m_camera.m_position -= m_camera.m_right * deltaTime * speed;
-    }
-    // Шаг вправо
-    if (has_flag(m_dir & EDirection::Right)) {
-       m_camera.m_position += m_camera.m_right * deltaTime * speed;
-    }
-
-    m_camera.update();
+    m_camera.Move(_movementDirection, delta);
 }
 
 void CWindowTest::Render()
@@ -99,7 +75,7 @@ void CWindowTest::Render()
     glm::mat4 model_matrix = glm::rotate( glm::mat4(1.0f), m_angle, glm::vec3(0.0f, 0.0f, 1.0f) );
 //    glm::mat4 view_matrix = glm::translate( glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f) );
 
-    glm::mat4 mvp_matrix = m_projection_matrix * m_camera.GetViewMatrix() * model_matrix;
+    glm::mat4 mvp_matrix = m_projection_matrix * m_camera.getViewMatrix() * model_matrix;
     m_mesh.Render(mvp_matrix);
 
     CenterMouse();
@@ -123,6 +99,8 @@ void CWindowTest::Key(int key, int scancode, int action, int mods)
     UNUSED(scancode);
     UNUSED(mods);
 
+    // utils::Log(utils::CFormat(L"CWindowTest::Key(%%x%%)") << key << action, utils::ELogLevel::Debug);
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         Destroy();
     }/* else if (key == GLFW_KEY_LEFT) {
@@ -139,38 +117,36 @@ void CWindowTest::Key(int key, int scancode, int action, int mods)
         }
     }*/
 
-//    utils::Log(utils::CFormat(L"CWindowTest::Key(%%x%%)") << key << action, utils::ELogLevel::Debug);
-
     if (key == GLFW_KEY_W) {
         if (action == GLFW_PRESS) {
-            m_dir = EDirection(m_dir | EDirection::Forward);
+            _movementDirection |= EDirection::Forward;
         } else if (action == GLFW_RELEASE) {
-            m_dir = EDirection(m_dir & ~EDirection::Forward);
+            _movementDirection &= ~EDirection::Forward;
         }
     } else if (key == GLFW_KEY_S) {
         if (action == GLFW_PRESS) {
-            m_dir = EDirection(m_dir | EDirection::Backward);
+            _movementDirection |= EDirection::Backward;
         } else if (action == GLFW_RELEASE) {
-            m_dir = EDirection(m_dir & ~EDirection::Backward);
+            _movementDirection &= ~EDirection::Backward;
         }
     } else if (key == GLFW_KEY_A) {
         if (action == GLFW_PRESS) {
-            m_dir = EDirection(m_dir | EDirection::Left);
+            _movementDirection |= EDirection::Left;
         } else if (action == GLFW_RELEASE) {
-            m_dir = EDirection(m_dir & ~EDirection::Left);
+            _movementDirection &= ~EDirection::Left;
         }
     } else if (key == GLFW_KEY_D) {
         if (action == GLFW_PRESS) {
-            m_dir = EDirection(m_dir | EDirection::Right);
+            _movementDirection |= EDirection::Right;
         } else if (action == GLFW_RELEASE) {
-            m_dir = EDirection(m_dir & ~EDirection::Right);
+            _movementDirection &= ~EDirection::Right;
         }
     }
 }
 
 void CWindowTest::Cursor(double xpos, double ypos)
 {
-//    utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%x%%)") << xpos << ypos, utils::ELogLevel::Debug);
+    // utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%x%%)") << xpos << ypos, utils::ELogLevel::Debug);
 
     m_camera.LookAt( float(m_width/2.0 - xpos), float(m_height/2.0 - ypos) );
 }

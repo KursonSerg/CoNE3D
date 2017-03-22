@@ -47,25 +47,25 @@ class CCamera
 public:
     CCamera();
 
-    void LookAt(float horizontal_angle, float vertical_angle);
-    const glm::mat4 &GetViewMatrix() { return m_view_matrix; }
+    void LookAt(float horizontalAngle, float verticalAngle);
+    void Move(const EDirection &direction, float deltaTime);
 
-    void update()
-    {
-        glm::vec3 up = glm::cross(m_right, m_direction);
-        m_view_matrix = glm::lookAt(m_position, m_position + m_direction, up);
-    }
+    const glm::mat4 &getViewMatrix() const;
+    void setViewMatrix(const glm::mat4 &viewMatrix);
+    void updateViewMatrix();
 
-    glm::vec3 m_position;
-    glm::vec3 m_right;
-    glm::vec3 m_direction;
 private:
+    glm::vec3 _position;
 
-    float m_horizontal_angle;
-    float m_vertical_angle;
-    float m_mouse_speed;
+    glm::vec3 _direction;
+    glm::vec3 _right;
+    glm::vec3 _up;
 
-    glm::mat4 m_view_matrix;
+    glm::mat4 _viewMatrix;
+
+    float _horizontalAngle;
+    float _verticalAngle;
+    const float _mouseSpeed;
 };
 
 #endif // CCAMERA_H
