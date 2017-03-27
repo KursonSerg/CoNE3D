@@ -3,11 +3,24 @@
 
 #include <vector>
 
-CShader::CShader(const std::string &shaderPath, EShaderType shaderType) :
+CShader::CShader(EShaderType shaderType, const std::string &shaderPath) :
     _shaderId(0)
 {
     // Create shader
     _shaderId = glCreateShader( static_cast<GLenum>(shaderType) );
+
+    Load(shaderPath);
+}
+
+CShader::~CShader()
+{
+    glDeleteShader(_shaderId);
+}
+
+void CShader::Load(const std::string &shaderPath)
+{
+    if (shaderPath.empty())
+        return;
 
     // Read shader code from the file
     std::string shaderCode;
@@ -20,11 +33,6 @@ CShader::CShader(const std::string &shaderPath, EShaderType shaderType) :
     glCompileShader(_shaderId);
 
     Check(GL_COMPILE_STATUS);
-}
-
-CShader::~CShader()
-{
-    glDeleteShader(_shaderId);
 }
 
 void CShader::Check(GLenum status)

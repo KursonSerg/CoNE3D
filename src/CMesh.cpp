@@ -55,8 +55,8 @@ CMesh::CMesh()
 {
     GLuint position_location = 0, color_location = 1;
 
-    _program.AttachShader(CShader("assets/simple.vs", EShaderType::Vertex));
-    _program.AttachShader(CShader("assets/simple.fs", EShaderType::Fragment));
+    _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vs"));
+    _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.fs"));
 
     CProgram::AttribInfo attribs;
     attribs[position_location] = "position";

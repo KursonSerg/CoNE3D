@@ -17,8 +17,10 @@ enum class EShaderType {
 class CShader
 {
 public:
-    CShader(const std::string &shaderPath, EShaderType shaderType);
+    CShader(EShaderType shaderType, const std::string &shaderPath = std::string());
     ~CShader();
+
+    void Load(const std::string &shaderPath);
 
 private:
     GLuint _shaderId;
