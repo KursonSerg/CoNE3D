@@ -15,8 +15,8 @@ class CWindowTest : public CWindow
 public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
-        , _angle(0.0)
-        , _speed(0.0)
+        , _angle(0.0f)
+        , _speed(45.0f)
         , _movementDirection(EDirection::No)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
@@ -61,16 +61,16 @@ void CWindowTest::Update(float deltaTime)
     }
 
     const float moveSpeed = 5.0f; // units per second
-    if (has_flag(_movementDirection & EDirection::Forward)) {
+    if (hasFlag(_movementDirection & EDirection::Forward)) {
         _camera.offsetPosition(deltaTime * moveSpeed * _camera.forward());
     }
-    else if (has_flag(_movementDirection & EDirection::Backward)) {
+    else if (hasFlag(_movementDirection & EDirection::Backward)) {
         _camera.offsetPosition(deltaTime * moveSpeed * -_camera.forward());
     }
-    if (has_flag(_movementDirection & EDirection::Right)) {
+    if (hasFlag(_movementDirection & EDirection::Right)) {
         _camera.offsetPosition(deltaTime * moveSpeed * _camera.right());
     }
-    else if (has_flag(_movementDirection & EDirection::Left)) {
+    else if (hasFlag(_movementDirection & EDirection::Left)) {
         _camera.offsetPosition(deltaTime * moveSpeed * -_camera.right());
     }
 }
@@ -81,12 +81,16 @@ void CWindowTest::Render()
 
     // Scale * Rotation * Translation
 
-    // Create MVP matrix
-    glm::mat4 model_matrix = glm::rotate( glm::mat4(1.0f), _angle, glm::vec3(0.0f, 0.0f, 1.0f) );
-//    glm::mat4 view_matrix = glm::translate( glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f) );
+    {
+        glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
+        _cubeMesh.Render(_camera.viewProjection() * modelMatrix);
+    }
 
-    glm::mat4 mvp_matrix = _camera.projectionMatrix() * _camera.viewMatrix() * model_matrix;
-    _cubeMesh.Render(mvp_matrix);
+    {
+        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle + 135.0f), glm::vec3(0.0f, 0.0f, 1.0f) );
+        glm::mat4 translationMatrix = glm::translate( glm::mat4(1.0f), glm::vec3(3.0f, 2.0f, 0.0f) );
+        _cubeMesh.Render(_camera.viewProjection() * translationMatrix * rotationMatrix);
+    }
 
     CenterMouse();
 

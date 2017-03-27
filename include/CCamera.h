@@ -25,7 +25,7 @@
 
 #define ALLOW_FLAGS_FOR_ENUM(e_type) \
     typedef std::underlying_type<e_type>::type ul_type; \
-    inline bool has_flag(e_type a) { return static_cast<ul_type>(a); } \
+    inline bool hasFlag(e_type a) { return static_cast<ul_type>(a); } \
     FLAGS_UNARY_OPERATOR(~, e_type) \
     FLAGS_BINARY_OPERATOR(|, e_type) \
     FLAGS_BINARY_OPERATOR(&, e_type) \
@@ -77,12 +77,14 @@ public:
     /**
      * @brief The translation and rotation matrix of the camera
      */
-    const glm::mat4 &viewMatrix() const { return _viewMatrix; }
+    const glm::mat4 &view() const { return _view; }
 
     /**
      * @brief The perspective projection transformation matrix
      */
-    const glm::mat4 &projectionMatrix() const { return _projectionMatrix; }
+    const glm::mat4 &projection() const { return _projection; }
+
+    glm::mat4 viewProjection() const { return projection() * view(); }
 
     const glm::vec3 &forward() const { return _forward; }
     const glm::vec3 &right() const { return _right; }
@@ -95,8 +97,8 @@ private:
     glm::vec3 _right;
     glm::vec3 _up;
 
-    glm::mat4 _viewMatrix;
-    glm::mat4 _projectionMatrix;
+    glm::mat4 _view;
+    glm::mat4 _projection;
 
     float _horizontalAngle;
     float _verticalAngle;
