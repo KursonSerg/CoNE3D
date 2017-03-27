@@ -24,7 +24,7 @@ public:
 
     operator const std::wstring & () const
     {
-        return m_format_string;
+        return _formatString;
     }
 
     template<typename CType>
@@ -67,8 +67,8 @@ private:
 
     CFormat &Append(const std::wstring &arg);
 
-    std::list<std::wstring> m_tokens;
-    std::wstring            m_format_string;
+    std::list<std::wstring> _tokens;
+    std::wstring            _formatString;
 };
 } // namespace utils
 

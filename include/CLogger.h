@@ -29,7 +29,8 @@ public:
     }
 
 private:
-    std::wofstream m_log;
+    std::wofstream _log;
+    std::mutex     _logSync;
 
     CLogger() noexcept;
     ~CLogger() noexcept;
@@ -38,8 +39,6 @@ private:
     CLogger &operator=(const CLogger &) = delete;
 
     std::wostream &getStream() noexcept;
-
-    std::mutex m_log_sync;
 
     friend void Log(const std::wstring &format_string, ELogLevel log_level);
 };

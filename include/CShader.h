@@ -21,7 +21,7 @@ public:
     ~CShader();
 
 private:
-    GLuint m_shader_id;
+    GLuint _shaderId;
 
     friend class CProgram;
 };
@@ -48,7 +48,7 @@ public:
 private:
     void Check(GLenum status);
 
-    GLuint m_program_id;
+    GLuint _programId;
 };
 
 #endif // C_SHADER_H

@@ -50,28 +50,28 @@ static const GLfloat CUBE_MESH[MESH_VERTEX_COUNT * 6] = {
 };
 
 CMesh::CMesh()
-    : m_vertex_shader("assets/simple.vs", EShaderType::Vertex)
-    , m_fragment_shader("assets/simple.fs", EShaderType::Fragment)
-    , m_mesh_vao(0)
-    , m_mesh_vbo(0)
+    : _vertexShader("assets/simple.vs", EShaderType::Vertex)
+    , _fragmentShader("assets/simple.fs", EShaderType::Fragment)
+    , _vao(0)
+    , _vbo(0)
 {
     GLuint position_location = 0, color_location = 1;
 
-    m_program.AttachShader(m_vertex_shader);
-    m_program.AttachShader(m_fragment_shader);
+    _program.AttachShader(_vertexShader);
+    _program.AttachShader(_fragmentShader);
 
     CProgram::AttribInfo attribs;
     attribs[position_location] = "position";
     attribs[color_location] = "color";
-    m_program.BindAttrib(attribs);
+    _program.BindAttrib(attribs);
 
     // Create a Vertex Array Object (VAO) and set it as the current one
-    glGenVertexArrays(1, &m_mesh_vao);
-    glBindVertexArray(m_mesh_vao);
+    glGenVertexArrays(1, &_vao);
+    glBindVertexArray(_vao);
 
     // Create a Vertex Buffer Object (VBO) and set it as the current one
-    glGenBuffers(1, &m_mesh_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_mesh_vbo);
+    glGenBuffers(1, &_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
     // Fill VBO with vertices
     glBufferData(GL_ARRAY_BUFFER, MESH_VERTEX_COUNT * VERTEX_SIZE, CUBE_MESH, GL_STATIC_DRAW);
@@ -88,31 +88,31 @@ CMesh::CMesh()
     // Enable using of attribute
     glEnableVertexAttribArray(color_location);
 
-    m_program.Link();
-    m_program.Use();
-    m_program.Validate();
+    _program.Link();
+    _program.Use();
+    _program.Validate();
 }
 
 CMesh::~CMesh()
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &m_mesh_vbo);
+    glDeleteBuffers(1, &_vbo);
 
     glBindVertexArray(0);
-    glDeleteVertexArrays(1, &m_mesh_vao);
+    glDeleteVertexArrays(1, &_vao);
 }
 
 void CMesh::Render(const glm::mat4 &mvp_matrix)
 {
     // Set shader program as the active one
-    m_program.Use();
+    _program.Use();
 
     // Set perspective matrix in shader
-    GLint mvp_matrix_location = m_program.GetUniform("mvp_matrix");
+    GLint mvp_matrix_location = _program.GetUniform("mvp_matrix");
     glUniformMatrix4fv( mvp_matrix_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix) );
 
     // Using VAO for rendering
-    glBindVertexArray(m_mesh_vao);
+    glBindVertexArray(_vao);
     // Render vertices in VBO binded to VAO
     glDrawArrays(GL_TRIANGLES, 0, MESH_VERTEX_COUNT);
 }

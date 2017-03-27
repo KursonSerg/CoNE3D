@@ -15,12 +15,12 @@ public:
     void Render(const glm::mat4 &mvp_matrix);
 
 private:
-    CProgram  m_program;
-    CShader   m_vertex_shader;
-    CShader   m_fragment_shader;
+    CProgram  _program;
+    CShader   _vertexShader;
+    CShader   _fragmentShader;
 
-    GLuint    m_mesh_vao;
-    GLuint    m_mesh_vbo;
+    GLuint    _vao;
+    GLuint    _vbo;
 };
 
 #endif // CMESH_H

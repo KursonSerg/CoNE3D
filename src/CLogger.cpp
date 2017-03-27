@@ -8,7 +8,7 @@ static constexpr const char *s_log_filename = "";
 #endif
 
 CLogger::CLogger() noexcept :
-    m_log(s_log_filename)
+    _log(s_log_filename)
 {
     std::ios_base::sync_with_stdio(false);
     getStream().imbue( std::locale(std::locale(), new std::codecvt_utf8<wchar_t>) );
@@ -16,13 +16,13 @@ CLogger::CLogger() noexcept :
 
 CLogger::~CLogger() noexcept
 {
-    m_log.close();
+    _log.close();
 }
 
 std::wostream &CLogger::getStream() noexcept
 {
-    if ( m_log.is_open() ) {
-        return m_log;
+    if ( _log.is_open() ) {
+        return _log;
     }
 
     return std::wclog;
@@ -31,7 +31,7 @@ std::wostream &CLogger::getStream() noexcept
 void Log(const std::wstring &message, ELogLevel log_level)
 {
     if (log_level <= LOG_LEVEL) {
-        std::lock_guard<std::mutex> guard(CLogger::Log().m_log_sync);
+        std::lock_guard<std::mutex> guard(CLogger::Log()._logSync);
 
         std::wostream &log = CLogger::Log().getStream();
 
