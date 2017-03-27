@@ -12,6 +12,8 @@
 
 #define UNUSED(x) ( (void)(x) )
 
+#define BUFFER_OFFSET(x) ( reinterpret_cast<const void *>(x) )
+
 namespace utils {
 size_t LoadFile(const std::wstring &filename, bool binary, std::wstring &buffer);
 size_t LoadFile(const std::string &filename, bool binary, std::string &buffer);

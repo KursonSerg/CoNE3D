@@ -77,14 +77,12 @@ CMesh::CMesh()
     glBufferData(GL_ARRAY_BUFFER, MESH_VERTEX_COUNT * VERTEX_SIZE, CUBE_MESH, GL_STATIC_DRAW);
 
     // Set access parameters to VBO
-    glVertexAttribPointer( position_location, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE,
-                           reinterpret_cast<const GLvoid *>(VERTEX_POSITION_OFFSET) );
+    glVertexAttribPointer( position_location, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, BUFFER_OFFSET(VERTEX_POSITION_OFFSET) );
     // Enable using of attribute
     glEnableVertexAttribArray(position_location);
 
     // Set access parameters to VBO
-    glVertexAttribPointer( color_location, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE,
-                           reinterpret_cast<const GLvoid *>(VERTEX_COLOR_OFFSET) );
+    glVertexAttribPointer( color_location, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, BUFFER_OFFSET(VERTEX_COLOR_OFFSET) );
     // Enable using of attribute
     glEnableVertexAttribArray(color_location);
 

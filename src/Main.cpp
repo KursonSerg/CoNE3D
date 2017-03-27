@@ -1,9 +1,3 @@
-#include <thread>
-
-//#include <gli/texture.hpp>
-//#include <gli/load.hpp>
-//#include <gli/gl.hpp>
-
 #include <Version.h>
 #include <CWindowManager.h>
 #include <CLogger.h>
