@@ -11,22 +11,22 @@ public:
     virtual ~CWindow()       = default;
 
     virtual void Init();
-    virtual void Update(double delta);
+    virtual void Update(float deltaTime);
     virtual void Render();
     virtual void Resize(int width, int height);
-    virtual void Key(int key, int scancode, int action, int mods);
-    virtual void Cursor(double xpos, double ypos);
+    virtual void Key(int key, int action, int mods);
+    virtual void Cursor(float xpos, float ypos);
 
     void Process();
 
     void Destroy()
     {
-        glfwSetWindowShouldClose(m_window.get(), 1);
+        glfwSetWindowShouldClose(_window.get(), 1);
     }
 
     bool operator==(const CWindow &other) const
     {
-        return m_window.get() == other.m_window.get();
+        return _window.get() == other._window.get();
     }
 
     bool operator!=(const CWindow &other) const
@@ -39,16 +39,16 @@ protected:
 
     bool ShouldClose()
     {
-        return glfwWindowShouldClose( m_window.get() ) == 1;
+        return glfwWindowShouldClose( _window.get() ) == 1;
     }
 
     void CenterMouse()
     {
-        glfwSetCursorPos(m_window.get(), m_width/2.0, m_height/2.0);
+        glfwSetCursorPos(_window.get(), static_cast<double>(_width/2.0f), static_cast<double>(_height/2.0f));
     }
 
-    double m_width;
-    double m_height;
+    float _width;
+    float _height;
 
 private:
     // Callbacks
@@ -65,10 +65,9 @@ private:
         }
     };
 
-    std::unique_ptr<GLFWwindow, GLFWwindowDestroy> m_window;
+    std::unique_ptr<GLFWwindow, GLFWwindowDestroy> _window;
 
-    double m_last_update_time;
-    double m_delta_time;
+    double _lastUpdateTime;
 };
 
 #endif // C_WINDOW_H

@@ -20,10 +20,10 @@ CWindowManager::~CWindowManager()
 
 void CWindowManager::Process()
 {
-    if ( m_window ) {
+    if ( _window ) {
         // Loop until the user closes main window
-        m_window->Process();
-        m_window->Destroy();
-        m_window.reset();
+        _window->Process();
+        _window->Destroy();
+        _window.reset();
     }
 }

@@ -1,4 +1,4 @@
-#include "CObject.h"
+#include <CObject.h>
 
 CObject::CObject()
 {

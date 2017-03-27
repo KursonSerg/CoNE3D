@@ -1,11 +1,7 @@
 #include <CWindow.h>
 
-const double MAX_FPS         = 1000.0 / 120.0;
-const double TIME_PER_UPDATE = MAX_FPS / 1000.0;
-
-CWindow::CWindow(int width, int height, const std::wstring &title) :
-    m_last_update_time(0.0),
-    m_delta_time(0.0)
+CWindow::CWindow(int width, int height, const std::wstring &title)
+    : _lastUpdateTime(0.0)
 {
     utils::Log(utils::CFormat(L"CWindow::CWindow(%%)") << title, utils::ELogLevel::Debug);
 
@@ -18,13 +14,13 @@ CWindow::CWindow(int width, int height, const std::wstring &title) :
 #endif
 
     // Create a windowed mode window and its OpenGL context
-    m_window.reset( glfwCreateWindow(width, height, utils::ws2s(title).c_str(), nullptr, nullptr) );
-    if (!m_window) {
+    _window.reset( glfwCreateWindow(width, height, utils::ws2s(title).c_str(), nullptr, nullptr) );
+    if (!_window) {
         throw std::runtime_error("Failed to create window with OpenGL context");
     }
 
     // Make the window's context current
-    glfwMakeContextCurrent( m_window.get() );
+    glfwMakeContextCurrent( _window.get() );
 
     if ( !gladLoadGLLoader( reinterpret_cast<GLADloadproc>(glfwGetProcAddress) ) ) {
         throw std::runtime_error("Failed to initialize OpenGL context");
@@ -52,62 +48,58 @@ CWindow::CWindow(int width, int height, const std::wstring &title) :
     }
 #endif
 
-    m_width = width;
-    m_height = height;
+    _width = static_cast<float>(width);
+    _height = static_cast<float>(height);
 
-    glfwSetWindowUserPointer(m_window.get(), this);
-    glfwSetFramebufferSizeCallback(m_window.get(), FramebufferSizeCallback);
-    glfwSetKeyCallback(m_window.get(), KeyCallback);
-    // glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(m_window.get(), CursorPosCallback);
-    // glfwSetInputMode(m_window.get(), GLFW_STICKY_KEYS, 1);
+    glfwSetWindowUserPointer(_window.get(), this);
+    glfwSetFramebufferSizeCallback(_window.get(), FramebufferSizeCallback);
+    glfwSetKeyCallback(_window.get(), KeyCallback);
+    glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(_window.get(), CursorPosCallback);
+    glfwSetInputMode(_window.get(), GLFW_STICKY_KEYS, 1);
 }
 
 void CWindow::Process()
 {
+    _lastUpdateTime = glfwGetTime();
     while ( !ShouldClose() ) {
-        if (m_last_update_time == 0.0) {
-            m_last_update_time = glfwGetTime();
-        }
+        // Poll for and process events
+        glfwPollEvents();
 
-        double current = glfwGetTime();
-        double elapsed = current - m_last_update_time;
-        m_last_update_time = current;
-        m_delta_time      += elapsed;
-
-        while (m_delta_time >= TIME_PER_UPDATE) {
-            Update(TIME_PER_UPDATE);
-            m_delta_time -= TIME_PER_UPDATE;
-        }
+        double currentUpdateTime = glfwGetTime();
+        Update(static_cast<float>(currentUpdateTime - _lastUpdateTime));
+        _lastUpdateTime = currentUpdateTime;
 
         // Render window
         Render();
 
         // Swap front and back buffers
-        glfwSwapBuffers( m_window.get() );
-        // Poll for and process events
-        glfwPollEvents();
+        glfwSwapBuffers( _window.get() );
     }
 }
 
 void CWindow::FramebufferSizeCallback(GLFWwindow *target_window, int width, int height)
 {
     CWindow *window = static_cast<CWindow *>( glfwGetWindowUserPointer(target_window) );
-    window->m_width = width;
-    window->m_height = height;
+
+    window->_width = static_cast<float>(width);
+    window->_height = static_cast<float>(height);
+
     window->Resize(width, height);
 }
 
 void CWindow::KeyCallback(GLFWwindow *target_window, int key, int scancode, int action, int mods)
 {
+    UNUSED(scancode);
+
     CWindow *window = static_cast<CWindow *>( glfwGetWindowUserPointer(target_window) );
-    window->Key(key, scancode, action, mods);
+    window->Key(key, action, mods);
 }
 
 void CWindow::CursorPosCallback(GLFWwindow *target_window, double xpos, double ypos)
 {
     CWindow *window = static_cast<CWindow *>( glfwGetWindowUserPointer(target_window) );
-    window->Cursor(xpos, ypos);
+    window->Cursor(static_cast<float>(xpos), static_cast<float>(ypos));
 }
 
 void CWindow::Init()
@@ -116,9 +108,9 @@ void CWindow::Init()
     glEnable(GL_DEPTH_TEST);
 }
 
-void CWindow::Update(double delta)
+void CWindow::Update(float deltaTime)
 {
-    UNUSED(delta);
+    UNUSED(deltaTime);
 }
 
 void CWindow::Render()
@@ -131,15 +123,14 @@ void CWindow::Resize(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void CWindow::Key(int key, int scancode, int action, int mods)
+void CWindow::Key(int key, int action, int mods)
 {
     UNUSED(key);
-    UNUSED(scancode);
     UNUSED(action);
     UNUSED(mods);
 }
 
-void CWindow::Cursor(double xpos, double ypos)
+void CWindow::Cursor(float xpos, float ypos)
 {
     UNUSED(xpos);
     UNUSED(ypos);

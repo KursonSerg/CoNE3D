@@ -1,4 +1,4 @@
-#include "CMesh.h"
+#include <CMesh.h>
 
 // Count of vertices
 static const uint32_t MESH_VERTEX_COUNT      = 36;
@@ -9,16 +9,6 @@ static const uint32_t VERTEX_SIZE            = 6 * sizeof(GL_FLOAT);
 // Data offsets inside vertex
 static const uint32_t VERTEX_POSITION_OFFSET = 0;
 static const uint32_t VERTEX_COLOR_OFFSET    = 3 * sizeof(GL_FLOAT);
-
-#if 0
-// Data for rendering quad
-static const float QUAD_MESH[MESH_VERTEX_COUNT * 6] = {
-    /* 1 vertex, position: */ -1.0f, -1.0f,  0.0f, /* color: */ 1.0f, 0.0f, 0.0f,
-    /* 2 vertex, position: */  1.0f, -1.0f,  0.0f, /* color: */ 0.0f, 1.0f, 0.0f,
-    /* 3 vertex, position: */ -1.0f,  1.0f,  0.0f, /* color: */ 0.0f, 0.0f, 1.0f,
-    /* 4 vertex, position: */  1.0f,  1.0f,  0.0f, /* color: */ 1.0f, 1.0f, 1.0f
-};
-#endif
 
 static const GLfloat CUBE_MESH[MESH_VERTEX_COUNT * 6] = {
     -1.0f, -1.0f, -1.0f, 0.583f, 0.771f, 0.014f,

@@ -23,7 +23,7 @@ private:
     CWindowManager(const CWindowManager &)            = delete;
     CWindowManager &operator=(const CWindowManager &) = delete;
 
-    std::unique_ptr<CWindow> m_window;
+    std::unique_ptr<CWindow> _window;
 };
 
 inline CWindowManager &WindowManager()
@@ -34,11 +34,11 @@ inline CWindowManager &WindowManager()
 template<typename CType>
 CWindow *CWindowManager::Create(int width, int height, const std::wstring &title)
 {
-    m_window.reset( new CType(width, height, title) );
-    m_window->Init();
-    m_window->Resize(width, height);
+    _window.reset( new CType(width, height, title) );
+    _window->Init();
+    _window->Resize(width, height);
 
-    return m_window.get();
+    return _window.get();
 }
 
 #endif // C_WINDOW_MANAGER_H

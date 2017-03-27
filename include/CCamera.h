@@ -47,25 +47,63 @@ class CCamera
 public:
     CCamera();
 
-    void LookAt(float horizontalAngle, float verticalAngle);
-    void Move(const EDirection &direction, float deltaTime);
+    /**
+     * @brief The position of the camera
+     */
+    const glm::vec3& position() const { return _position; }
+    void setPosition(const glm::vec3& position);
 
-    const glm::mat4 &getViewMatrix() const;
-    void setViewMatrix(const glm::mat4 &viewMatrix);
-    void updateViewMatrix();
+    /**
+     * @brief Offsets the cameras position
+     * @param offset    offset direction
+     */
+    void offsetPosition(const glm::vec3& offset);
+
+    /**
+     * @brief Offsets the cameras orientation
+     * @param horizontalAngle   the angle (in radians) to offset rightwards (negative values are leftwards)
+     * @param verticalAngle     the angle (in radians) to offset downwards (negative values are upwards)
+     */
+    void offsetOrientation(float horizontalAngle, float verticalAngle);
+
+    /**
+     * @brief Orients the camera so that is it directly facing `position`
+     * @param position  the position to look at
+     */
+    void lookAt(const glm::vec3 &position);
+
+    void setViewportAspectRatio(float aspectRatio);
+
+    /**
+     * @brief The translation and rotation matrix of the camera
+     */
+    const glm::mat4 &viewMatrix() const { return _viewMatrix; }
+
+    /**
+     * @brief The perspective projection transformation matrix
+     */
+    const glm::mat4 &projectionMatrix() const { return _projectionMatrix; }
+
+    const glm::vec3 &forward() const { return _forward; }
+    const glm::vec3 &right() const { return _right; }
+    const glm::vec3 &up() const { return _up; }
 
 private:
     glm::vec3 _position;
 
-    glm::vec3 _direction;
+    glm::vec3 _forward;
     glm::vec3 _right;
     glm::vec3 _up;
 
     glm::mat4 _viewMatrix;
+    glm::mat4 _projectionMatrix;
 
     float _horizontalAngle;
     float _verticalAngle;
-    const float _mouseSpeed;
+
+    void updateOrientation();
+    void updateViewMatrix();
+    void normalizeAngles();
 };
 
 #endif // CCAMERA_H

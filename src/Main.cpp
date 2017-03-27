@@ -15,8 +15,8 @@ class CWindowTest : public CWindow
 public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
-        , m_angle(0.0)
-        , m_speed(0.0)
+        , _angle(0.0)
+        , _speed(0.0)
         , _movementDirection(EDirection::No)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
@@ -28,20 +28,18 @@ public:
     }
 
     virtual void Init() override;
-    virtual void Update(double delta) override;
+    virtual void Update(float deltaTime) override;
     virtual void Render() override;
     virtual void Resize(int width, int height) override;
-    virtual void Key(int key, int scancode, int action, int mods) override;
-    virtual void Cursor(double xpos, double ypos) override;
+    virtual void Key(int key, int action, int mods) override;
+    virtual void Cursor(float xpos, float ypos) override;
 
 private:
-    CCamera   m_camera;
-    CMesh     m_mesh;
+    CCamera   _camera;
+    CMesh     _cubeMesh;
 
-    glm::mat4 m_projection_matrix;
-
-    float     m_angle;
-    double    m_speed;
+    float     _angle;
+    float     _speed;
 
     EDirection _movementDirection;
 };
@@ -55,14 +53,26 @@ void CWindowTest::Init()
     glEnable(GL_CULL_FACE);
 }
 
-void CWindowTest::Update(double delta)
+void CWindowTest::Update(float deltaTime)
 {
-    m_angle += m_speed * delta;
-    if (m_angle >= 360.0f) {
-        m_angle = 0.0f;
+    _angle += _speed * deltaTime;
+    if (_angle >= 360.0f) {
+        _angle = 0.0f;
     }
 
-    m_camera.Move(_movementDirection, delta);
+    const float moveSpeed = 5.0f; // units per second
+    if (has_flag(_movementDirection & EDirection::Forward)) {
+        _camera.offsetPosition(deltaTime * moveSpeed * _camera.forward());
+    }
+    else if (has_flag(_movementDirection & EDirection::Backward)) {
+        _camera.offsetPosition(deltaTime * moveSpeed * -_camera.forward());
+    }
+    if (has_flag(_movementDirection & EDirection::Right)) {
+        _camera.offsetPosition(deltaTime * moveSpeed * _camera.right());
+    }
+    else if (has_flag(_movementDirection & EDirection::Left)) {
+        _camera.offsetPosition(deltaTime * moveSpeed * -_camera.right());
+    }
 }
 
 void CWindowTest::Render()
@@ -72,11 +82,11 @@ void CWindowTest::Render()
     // Scale * Rotation * Translation
 
     // Create MVP matrix
-    glm::mat4 model_matrix = glm::rotate( glm::mat4(1.0f), m_angle, glm::vec3(0.0f, 0.0f, 1.0f) );
+    glm::mat4 model_matrix = glm::rotate( glm::mat4(1.0f), _angle, glm::vec3(0.0f, 0.0f, 1.0f) );
 //    glm::mat4 view_matrix = glm::translate( glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f) );
 
-    glm::mat4 mvp_matrix = m_projection_matrix * m_camera.getViewMatrix() * model_matrix;
-    m_mesh.Render(mvp_matrix);
+    glm::mat4 mvp_matrix = _camera.projectionMatrix() * _camera.viewMatrix() * model_matrix;
+    _cubeMesh.Render(mvp_matrix);
 
     CenterMouse();
 
@@ -87,33 +97,29 @@ void CWindowTest::Resize(int width, int height)
 {
     utils::Log(utils::CFormat(L"CWindowTest::Resize(%%x%%)") << width << height, utils::ELogLevel::Debug);
 
-    float aspect = static_cast<float>(m_width / m_height);
-    m_projection_matrix = glm::perspective( glm::radians(45.0f), aspect, 0.1f, 100.0f );
+    _camera.setViewportAspectRatio( static_cast<float>(_width / _height) );
 
     // Set viewport
     glViewport(0, 0, width, height);
 }
 
-void CWindowTest::Key(int key, int scancode, int action, int mods)
+void CWindowTest::Key(int key, int action, int mods)
 {
-    UNUSED(scancode);
     UNUSED(mods);
-
-    // utils::Log(utils::CFormat(L"CWindowTest::Key(%%x%%)") << key << action, utils::ELogLevel::Debug);
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         Destroy();
     }/* else if (key == GLFW_KEY_LEFT) {
         if (action == GLFW_PRESS) {
-            m_speed = 1.0;
-        } else if (action == GLFW_RELEASE && m_speed > 0.0) {
-            m_speed = 0.0;
+            _speed = 1.0;
+        } else if (action == GLFW_RELEASE && _speed > 0.0) {
+            _speed = 0.0;
         }
     } else if (key == GLFW_KEY_RIGHT) {
         if (action == GLFW_PRESS) {
-            m_speed = -1.0;
-        } else if (action == GLFW_RELEASE && m_speed < 0.0) {
-            m_speed = 0.0;
+            _speed = -1.0;
+        } else if (action == GLFW_RELEASE && _speed < 0.0) {
+            _speed = 0.0;
         }
     }*/
 
@@ -144,11 +150,13 @@ void CWindowTest::Key(int key, int scancode, int action, int mods)
     }
 }
 
-void CWindowTest::Cursor(double xpos, double ypos)
+void CWindowTest::Cursor(float xpos, float ypos)
 {
-    // utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%x%%)") << xpos << ypos, utils::ELogLevel::Debug);
+    // utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%, %%)") << xpos << ypos, utils::ELogLevel::Debug);
 
-    m_camera.LookAt( float(m_width/2.0 - xpos), float(m_height/2.0 - ypos) );
+    const float mouseSensitivity = 0.01f;
+    _camera.offsetOrientation( (xpos - _width/2.0f) * mouseSensitivity,
+                               (ypos - _height/2.0f) * mouseSensitivity );
 }
 
 int main(int argc, char *argv[])
