@@ -17,11 +17,13 @@ enum class EShaderType {
 class CShader
 {
 public:
-    CShader(const std::string &shader_path, EShaderType shader_type);
+    CShader(const std::string &shaderPath, EShaderType shaderType);
     ~CShader();
 
 private:
     GLuint _shaderId;
+
+    void Check(GLenum status);
 
     friend class CProgram;
 };
@@ -46,9 +48,9 @@ public:
     GLint GetUniform(const GLchar *name) const;
 
 private:
-    void Check(GLenum status);
-
     GLuint _programId;
+
+    void Check(GLenum status);
 };
 
 #endif // C_SHADER_H

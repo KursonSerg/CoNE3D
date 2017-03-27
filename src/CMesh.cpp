@@ -50,15 +50,13 @@ static const GLfloat CUBE_MESH[MESH_VERTEX_COUNT * 6] = {
 };
 
 CMesh::CMesh()
-    : _vertexShader("assets/simple.vs", EShaderType::Vertex)
-    , _fragmentShader("assets/simple.fs", EShaderType::Fragment)
-    , _vao(0)
+    : _vao(0)
     , _vbo(0)
 {
     GLuint position_location = 0, color_location = 1;
 
-    _program.AttachShader(_vertexShader);
-    _program.AttachShader(_fragmentShader);
+    _program.AttachShader(CShader("assets/simple.vs", EShaderType::Vertex));
+    _program.AttachShader(CShader("assets/simple.fs", EShaderType::Fragment));
 
     CProgram::AttribInfo attribs;
     attribs[position_location] = "position";

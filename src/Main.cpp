@@ -29,11 +29,11 @@ public:
     virtual void Cursor(float xpos, float ypos) override;
 
 private:
-    CCamera   _camera;
-    CMesh     _cubeMesh;
+    CCamera _camera;
+    CMesh   _cubeMesh;
 
-    float     _angle;
-    float     _speed;
+    float _angle;
+    float _speed;
 
     EDirection _movementDirection;
 };
@@ -76,13 +76,19 @@ void CWindowTest::Render()
     // Scale * Rotation * Translation
 
     {
-        glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
-        _cubeMesh.Render(_camera.viewProjection() * modelMatrix);
+        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
+        _cubeMesh.Render(_camera.viewProjection() * rotationMatrix);
     }
 
     {
-        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle + 135.0f), glm::vec3(0.0f, 0.0f, 1.0f) );
+        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
         glm::mat4 translationMatrix = glm::translate( glm::mat4(1.0f), glm::vec3(3.0f, 2.0f, 0.0f) );
+        _cubeMesh.Render(_camera.viewProjection() * translationMatrix * rotationMatrix);
+    }
+
+    {
+        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(1.0f, 0.0f, 0.0f) );
+        glm::mat4 translationMatrix = glm::translate( glm::mat4(1.0f), glm::vec3(-3.0f, -2.0f, 0.0f) );
         _cubeMesh.Render(_camera.viewProjection() * translationMatrix * rotationMatrix);
     }
 
