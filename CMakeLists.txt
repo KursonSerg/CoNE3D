@@ -78,9 +78,8 @@ set(SRCS src/Main.cpp
 
 # Compiler flags
 if(MSVC)
-  add_definitions(-DGLM_FORCE_CXX11)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  set(CMAKE_C_CXX_FLAGS "/W4 /WX /MD /Ox /Ob2 /Oi /Ot /Oy /GL /GF")
+  set(CMAKE_C_CXX_FLAGS "/W4 /MD /Ox /Ob2 /Oi /Ot /Oy /GL /GF")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_CXX_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS "/NOLOGO /INCREMENTAL:NO /OPT:REF /LTCG")

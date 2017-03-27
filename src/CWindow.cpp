@@ -1,7 +1,6 @@
 #include <CWindow.h>
 
 CWindow::CWindow(int width, int height, const std::wstring &title)
-    : _lastUpdateTime(0.0)
 {
     utils::Log(utils::CFormat(L"CWindow::CWindow(%%)") << title, utils::ELogLevel::Debug);
 
@@ -61,14 +60,27 @@ CWindow::CWindow(int width, int height, const std::wstring &title)
 
 void CWindow::Process()
 {
-    _lastUpdateTime = glfwGetTime();
+    glfwSwapInterval(0);
+
+    int counter = 0;
+    double elapsedTime = 0.0;
+
+    double lastUpdateTime = glfwGetTime();
     while ( !ShouldClose() ) {
         // Poll for and process events
         glfwPollEvents();
 
         double currentUpdateTime = glfwGetTime();
-        Update(static_cast<float>(currentUpdateTime - _lastUpdateTime));
-        _lastUpdateTime = currentUpdateTime;
+        double deltaTime = currentUpdateTime - lastUpdateTime;
+
+        Update(static_cast<float>(deltaTime));
+
+        elapsedTime += deltaTime; ++counter;
+        if (elapsedTime >= 1.0) {
+            utils::Log(utils::CFormat(L"FPS %%") << counter, utils::ELogLevel::Debug);
+            elapsedTime = 0.0; counter = 0;
+        }
+        lastUpdateTime = currentUpdateTime;
 
         // Render window
         Render();

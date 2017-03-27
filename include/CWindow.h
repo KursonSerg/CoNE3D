@@ -66,8 +66,6 @@ private:
     };
 
     std::unique_ptr<GLFWwindow, GLFWwindowDestroy> _window;
-
-    double _lastUpdateTime;
 };
 
 #endif // C_WINDOW_H
