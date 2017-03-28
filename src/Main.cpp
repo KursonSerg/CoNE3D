@@ -76,20 +76,22 @@ void CWindowTest::Render()
     // Scale * Rotation * Translation
 
     {
-        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
-        _cubeMesh.Render(_camera.viewProjection() * rotationMatrix);
+        glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
+        _cubeMesh.Render(_camera.viewProjection() * model);
     }
 
     {
-        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
-        glm::mat4 translationMatrix = glm::translate( glm::mat4(1.0f), glm::vec3(3.0f, 2.0f, 0.0f) );
-        _cubeMesh.Render(_camera.viewProjection() * translationMatrix * rotationMatrix);
+        glm::mat4 model = glm::translate( glm::mat4(1.0f), glm::vec3(3.0f, 2.0f, 0.0f) );
+        model = glm::rotate( model, glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
+        model = glm::scale( model, glm::vec3(0.75f, 0.75f, 0.75f) );
+        _cubeMesh.Render(_camera.viewProjection() * model);
     }
 
     {
-        glm::mat4 rotationMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(1.0f, 0.0f, 0.0f) );
-        glm::mat4 translationMatrix = glm::translate( glm::mat4(1.0f), glm::vec3(-3.0f, -2.0f, 0.0f) );
-        _cubeMesh.Render(_camera.viewProjection() * translationMatrix * rotationMatrix);
+        glm::mat4 model = glm::translate( glm::mat4(1.0f), glm::vec3(-3.0f, -2.0f, 0.0f) );
+        model = glm::rotate( model, glm::radians(_angle), glm::vec3(1.0f, 0.0f, 0.0f) );
+        model = glm::scale( model, glm::vec3(0.75f, 0.75f, 0.75f) );
+        _cubeMesh.Render(_camera.viewProjection() * model);
     }
 
     CenterMouse();
@@ -139,17 +141,17 @@ void CWindowTest::Key(int key, int action, int mods)
         } else if (action == GLFW_RELEASE) {
             _movementDirection &= ~EDirection::Backward;
         }
-    } else if (key == GLFW_KEY_A) {
-        if (action == GLFW_PRESS) {
-            _movementDirection |= EDirection::Left;
-        } else if (action == GLFW_RELEASE) {
-            _movementDirection &= ~EDirection::Left;
-        }
     } else if (key == GLFW_KEY_D) {
         if (action == GLFW_PRESS) {
             _movementDirection |= EDirection::Right;
         } else if (action == GLFW_RELEASE) {
             _movementDirection &= ~EDirection::Right;
+        }
+    } else if (key == GLFW_KEY_A) {
+        if (action == GLFW_PRESS) {
+            _movementDirection |= EDirection::Left;
+        } else if (action == GLFW_RELEASE) {
+            _movementDirection &= ~EDirection::Left;
         }
     }
 }

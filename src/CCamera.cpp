@@ -45,7 +45,7 @@ void CCamera::lookAt(const glm::vec3 &position)
 
 void CCamera::setViewportAspectRatio(float aspectRatio)
 {
-    _projection = glm::perspective( glm::radians(45.0f), aspectRatio, 0.1f, 100.0f );
+    _projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
 }
 
 void CCamera::updateOrientation()

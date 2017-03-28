@@ -12,7 +12,7 @@ public:
     CMesh();
     ~CMesh();
 
-    void Render(const glm::mat4 &mvp_matrix);
+    void Render(const glm::mat4 &mvpMatrix);
 
 private:
     CProgram _program;

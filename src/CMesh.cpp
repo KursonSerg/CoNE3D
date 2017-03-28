@@ -53,14 +53,14 @@ CMesh::CMesh()
     : _vao(0)
     , _vbo(0)
 {
-    GLuint position_location = 0, color_location = 1;
+    GLuint positionLocation = 0, colorLocation = 1;
 
     _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vs"));
     _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.fs"));
 
     CProgram::AttribInfo attribs;
-    attribs[position_location] = "position";
-    attribs[color_location] = "color";
+    attribs[positionLocation] = "position";
+    attribs[colorLocation] = "color";
     _program.BindAttrib(attribs);
 
     // Create a Vertex Array Object (VAO) and set it as the current one
@@ -75,14 +75,14 @@ CMesh::CMesh()
     glBufferData(GL_ARRAY_BUFFER, MESH_VERTEX_COUNT * VERTEX_SIZE, CUBE_MESH, GL_STATIC_DRAW);
 
     // Set access parameters to VBO
-    glVertexAttribPointer( position_location, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, BUFFER_OFFSET(VERTEX_POSITION_OFFSET) );
+    glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, BUFFER_OFFSET(VERTEX_POSITION_OFFSET));
     // Enable using of attribute
-    glEnableVertexAttribArray(position_location);
+    glEnableVertexAttribArray(positionLocation);
 
     // Set access parameters to VBO
-    glVertexAttribPointer( color_location, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, BUFFER_OFFSET(VERTEX_COLOR_OFFSET) );
+    glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE, BUFFER_OFFSET(VERTEX_COLOR_OFFSET));
     // Enable using of attribute
-    glEnableVertexAttribArray(color_location);
+    glEnableVertexAttribArray(colorLocation);
 
     _program.Link();
     _program.Use();
@@ -98,14 +98,14 @@ CMesh::~CMesh()
     glDeleteVertexArrays(1, &_vao);
 }
 
-void CMesh::Render(const glm::mat4 &mvp_matrix)
+void CMesh::Render(const glm::mat4 &mvpMatrix)
 {
     // Set shader program as the active one
     _program.Use();
 
     // Set perspective matrix in shader
-    GLint mvp_matrix_location = _program.GetUniform("mvp_matrix");
-    glUniformMatrix4fv( mvp_matrix_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix) );
+    GLint mvpMatrixLocation = _program.GetUniform("mvpMatrix");
+    glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
     // Using VAO for rendering
     glBindVertexArray(_vao);
