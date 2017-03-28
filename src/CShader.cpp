@@ -6,10 +6,9 @@
 CShader::CShader(EShaderType shaderType, const std::string &shaderPath) :
     _shaderId(0)
 {
-    // Create shader
     _shaderId = glCreateShader( static_cast<GLenum>(shaderType) );
 
-    Load(shaderPath);
+    Compile(shaderPath);
 }
 
 CShader::~CShader()
@@ -17,16 +16,14 @@ CShader::~CShader()
     glDeleteShader(_shaderId);
 }
 
-void CShader::Load(const std::string &shaderPath)
+void CShader::Compile(const std::string &shaderPath)
 {
     if (shaderPath.empty())
         return;
 
-    // Read shader code from the file
     std::string shaderCode;
     utils::LoadFile(shaderPath, false, shaderCode);
 
-    // Compile shader
     utils::Log(utils::CFormat(L"Compiling shader '%%'...") << shaderPath, utils::ELogLevel::Debug);
     const char *shaderCodePointer = shaderCode.c_str();
     glShaderSource(_shaderId, 1, &shaderCodePointer, nullptr);
@@ -40,7 +37,6 @@ void CShader::Check(GLenum status)
     GLint result        = GL_FALSE;
     int   infoLogLength = 0;
 
-    // Check shader
     glGetShaderiv(_shaderId, status, &result);
 
     if (result != GL_TRUE) {
@@ -105,7 +101,6 @@ void CProgram::Check(GLenum status)
     GLint result        = GL_FALSE;
     int   infoLogLength = 0;
 
-    // Check program
     glGetProgramiv(_programId, status, &result);
 
     if (result != GL_TRUE) {

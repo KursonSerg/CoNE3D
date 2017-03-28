@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 
     try
     {
-        WindowManager().Create<CWindowTest>(640, 480, L"CoNE3D Window Test");
+        WindowManager().Create<CWindowTest>(640, 360, L"CoNE3D Window Test");
         WindowManager().Process();
     }
     catch (const std::exception &ex)

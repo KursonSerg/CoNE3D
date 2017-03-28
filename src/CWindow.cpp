@@ -62,7 +62,7 @@ void CWindow::Process()
 {
     glfwSwapInterval(0);
 
-    int counter = 0;
+    int fpsCounter = 0;
     double elapsedTime = 0.0;
 
     double lastUpdateTime = glfwGetTime();
@@ -75,10 +75,10 @@ void CWindow::Process()
 
         Update(static_cast<float>(deltaTime));
 
-        elapsedTime += deltaTime; ++counter;
+        elapsedTime += deltaTime; ++fpsCounter;
         if (elapsedTime >= 1.0) {
-            utils::Log(utils::CFormat(L"FPS %%") << counter, utils::ELogLevel::Debug);
-            elapsedTime = 0.0; counter = 0;
+            utils::Log(utils::CFormat(L"FPS: %%") << fpsCounter, utils::ELogLevel::Debug);
+            elapsedTime = 0.0; fpsCounter = 0;
         }
         lastUpdateTime = currentUpdateTime;
 
