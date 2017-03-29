@@ -65,13 +65,14 @@ void CWindow::Process()
     int fpsCounter = 0;
     double elapsedTime = 0.0;
 
-    double lastUpdateTime = glfwGetTime();
-    while ( !ShouldClose() ) {
+    double previousTime = glfwGetTime();
+    while ( Running() ) {
+        double currentTime = glfwGetTime();
+        double deltaTime = currentTime - previousTime;
+        previousTime = currentTime;
+
         // Poll for and process events
         glfwPollEvents();
-
-        double currentUpdateTime = glfwGetTime();
-        double deltaTime = currentUpdateTime - lastUpdateTime;
 
         Update(static_cast<float>(deltaTime));
 
@@ -80,7 +81,6 @@ void CWindow::Process()
             utils::Log(utils::CFormat(L"FPS: %%") << fpsCounter, utils::ELogLevel::Debug);
             elapsedTime = 0.0; fpsCounter = 0;
         }
-        lastUpdateTime = currentUpdateTime;
 
         // Render window
         Render();
@@ -88,6 +88,8 @@ void CWindow::Process()
         // Swap front and back buffers
         glfwSwapBuffers( _window.get() );
     }
+
+    Destroy();
 }
 
 void CWindow::FramebufferSizeCallback(GLFWwindow *target_window, int width, int height)

@@ -7,6 +7,7 @@
 class CWindow
 {
 public:
+    CWindow(int width, int height, const std::wstring &title);
     CWindow(CWindow &&other) = default;
     virtual ~CWindow()       = default;
 
@@ -35,11 +36,9 @@ public:
     }
 
 protected:
-    CWindow(int width, int height, const std::wstring &title);
-
-    bool ShouldClose()
+    bool Running()
     {
-        return glfwWindowShouldClose( _window.get() ) == 1;
+        return glfwWindowShouldClose( _window.get() ) != 1;
     }
 
     void CenterMouse()

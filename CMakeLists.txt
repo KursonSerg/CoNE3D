@@ -58,7 +58,6 @@ set(INCS include/Common.h
          include/CFormat.h
          include/CLogger.h
          include/CWindow.h
-         include/CWindowManager.h
          include/CShader.h
          include/CObject.h
          include/CMesh.h
@@ -70,7 +69,6 @@ set(SRCS src/Main.cpp
          src/CFormat.cpp
          src/CLogger.cpp
          src/CWindow.cpp
-         src/CWindowManager.cpp
          src/CShader.cpp
          src/CObject.cpp
          src/CMesh.cpp

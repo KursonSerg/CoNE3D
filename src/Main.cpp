@@ -1,5 +1,5 @@
 #include <Version.h>
-#include <CWindowManager.h>
+#include <CWindow.h>
 #include <CLogger.h>
 #include <CMesh.h>
 #include <CCamera.h>
@@ -14,6 +14,9 @@ public:
         , _movementDirection(EDirection::No)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
+
+        Resize(width, height); // @TODO
+        Init();
     }
 
     virtual ~CWindowTest()
@@ -176,8 +179,16 @@ int main(int argc, char *argv[])
 
     try
     {
-        WindowManager().Create<CWindowTest>(640, 360, L"CoNE3D Window Test");
-        WindowManager().Process();
+        // Initialize glfw library
+        if ( !glfwInit() ) {
+            throw std::runtime_error("Failed to initialize window library");
+        }
+
+        CWindowTest window(640, 360, L"CoNE3D Window Test");
+        window.Process();
+
+        // Clean up glfw library
+        glfwTerminate();
     }
     catch (const std::exception &ex)
     {
