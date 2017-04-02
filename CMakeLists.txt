@@ -61,7 +61,8 @@ set(INCS include/Common.h
          include/CShader.h
          include/CObject.h
          include/CMesh.h
-         include/CCamera.h)
+         include/CCamera.h
+         include/CTexture.h)
 
 # List sources
 set(SRCS src/Main.cpp
@@ -72,7 +73,8 @@ set(SRCS src/Main.cpp
          src/CShader.cpp
          src/CObject.cpp
          src/CMesh.cpp
-         src/CCamera.cpp)
+         src/CCamera.cpp
+         src/CTexture.cpp)
 
 # Compiler flags
 if(MSVC)

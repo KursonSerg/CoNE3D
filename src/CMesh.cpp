@@ -1,13 +1,29 @@
 #include <CMesh.h>
 
+#include <array>
 #include <vector>
+#include <numeric>
+#include <type_traits>
 
 struct SVertex
 {
     glm::vec3 position;
     glm::vec3 color;
+    glm::vec2 uv;
+#if 0
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 uv;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+#endif
+
+    static constexpr std::array<unsigned, 3> offsets = { { 3, 3, 2 } };
 };
 
+constexpr std::array<unsigned, 3> SVertex::offsets;
+static_assert(std::is_standard_layout<SVertex>::value, "Not a standard layout");
+/*
 static const std::vector<SVertex> cubeMesh = {
     { { -1.0f, -1.0f, -1.0f }, { 0.583f, 0.771f, 0.014f } },
     { { -1.0f, -1.0f,  1.0f }, { 0.609f, 0.115f, 0.436f } },
@@ -46,13 +62,21 @@ static const std::vector<SVertex> cubeMesh = {
     { { -1.0f,  1.0f,  1.0f }, { 0.820f, 0.883f, 0.371f } },
     { {  1.0f, -1.0f,  1.0f }, { 0.982f, 0.099f, 0.879f } }
 };
+*/
+
+static GLfloat vertices[] = {
+    // Positions          // Colors           // Texture Coords
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
+};
 
 CMesh::CMesh()
-    : _vao(0)
+    : _texture("assets/crate.jpg")
+    , _vao(0)
     , _vbo(0)
 {
-    GLuint positionLocation = 0, colorLocation = 1;
-
     // Create a Vertex Array Object (VAO) and set it as the current one
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
@@ -62,29 +86,34 @@ CMesh::CMesh()
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
     // Fill VBO with vertices
-    glBufferData(GL_ARRAY_BUFFER, cubeMesh.size() * sizeof(SVertex), cubeMesh.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Enable using of attribute
-    glEnableVertexAttribArray(positionLocation);
-    // Set access parameters to VBO
-    glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), BUFFER_OFFSET(0));
+    const auto &offsets = SVertex::offsets;
 
-    // Enable using of attribute
-    glEnableVertexAttribArray(colorLocation);
-    // Set access parameters to VBO
-    glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), BUFFER_OFFSET(offsetof(SVertex, color)));
+    unsigned currentOffset = 0u;
+    unsigned vertexSize = std::accumulate(offsets.begin(), offsets.end(), 0u) * sizeof(GLfloat);
+    for (unsigned i = 0; i < offsets.size(); ++i)
+    {
+        // Set access parameters to VBO
+        glVertexAttribPointer(i, offsets[i], GL_FLOAT, GL_FALSE, vertexSize, BUFFER_OFFSET(currentOffset));
+        // Enable using of attribute
+        glEnableVertexAttribArray(i);
+        currentOffset += offsets[i] * sizeof(GLfloat);
+    }
 
     _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vs"));
     _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.fs"));
 
-    CProgram::AttribInfo attribs;
-    attribs[positionLocation] = "position";
-    attribs[colorLocation] = "color";
-    _program.BindAttrib(attribs);
+//    CProgram::AttribInfo attribs;
+//    attribs[0] = "position";
+//    attribs[1] = "color";
+//    _program.BindAttrib(attribs);
 
     _program.Link();
     _program.Use();
     _program.Validate();
+
+    glBindVertexArray(0);
 }
 
 CMesh::~CMesh()
@@ -101,6 +130,8 @@ void CMesh::Render(const glm::mat4 &mvpMatrix)
     // Set shader program as the active one
     _program.Use();
 
+    _texture.bind();
+
     // Set perspective matrix in shader
     GLint mvpMatrixLocation = _program.GetUniform("mvpMatrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
@@ -108,5 +139,6 @@ void CMesh::Render(const glm::mat4 &mvpMatrix)
     // Using VAO for rendering
     glBindVertexArray(_vao);
     // Render vertices in VBO binded to VAO
-    glDrawArrays(GL_TRIANGLES, 0, cubeMesh.size());
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindVertexArray(0);
 }

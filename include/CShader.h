@@ -39,7 +39,7 @@ public:
     void AttachShader(const CShader &shader);
     void Link();
     void Use();
-    static void Unuse();
+    void Unuse();
     void Validate();
 
     void BindAttrib(GLuint index, const GLchar *name);

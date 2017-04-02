@@ -20,7 +20,7 @@ size_t LoadFile(const std::wstring &filename, bool binary, std::wstring &buffer)
         utils::Log(CFormat(L"File '%%' (size: %% bytes):\n%%")
                    << filename << buffer.size() << buffer, utils::ELogLevel::Debug);
     } else {
-        throw std::runtime_error( utils::ws2s(CFormat(L"Can't open file '%%'") << filename) );
+        throw std::runtime_error( utils::ws2s(CFormat(L"Failed to open file '%%'") << filename) );
     }
 
     return buffer.size();
@@ -43,7 +43,7 @@ size_t LoadFile(const std::string &filename, bool binary, std::string &buffer)
         utils::Log(CFormat(L"File '%%' (size: %% bytes):\n%%")
                    << filename << buffer.size() << buffer, utils::ELogLevel::Debug);
     } else {
-        throw std::runtime_error( utils::ws2s(CFormat(L"Can't open file '%%'") << filename) );
+        throw std::runtime_error( utils::ws2s(CFormat(L"Failed to open file '%%'") << filename) );
     }
 
     return buffer.size();
