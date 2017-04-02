@@ -9,6 +9,9 @@ CTexture::CTexture(const std::string &filename)
     : _target(GL_TEXTURE_2D)
     , _texture(0)
     , _format(GL_RGB)
+    , _width(0)
+    , _height(0)
+    , _components(0)
 {
     unsigned char *image = stbi_load(filename.c_str(), &_width, &_height, &_components, STBI_default);
 

@@ -8,68 +8,74 @@
 struct SVertex
 {
     glm::vec3 position;
-    glm::vec3 color;
     glm::vec2 uv;
 #if 0
-    glm::vec3 position;
     glm::vec3 normal;
-    glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 bitangent;
 #endif
 
-    static constexpr std::array<unsigned, 3> offsets = { { 3, 3, 2 } };
+    static constexpr std::array<unsigned, 2> offsets { { 3, 2 } };
 };
 
-constexpr std::array<unsigned, 3> SVertex::offsets;
-static_assert(std::is_standard_layout<SVertex>::value, "Not a standard layout");
-/*
+template <typename T, std::size_t N>
+constexpr T constexpr_accumulate(const std::array<T, N> &a, std::size_t i = 0u)
+{
+    return i < N ? (a[i] + constexpr_accumulate(a, i + 1u)) : T {};
+}
+
+constexpr std::array<unsigned, 2> SVertex::offsets;
+static_assert(std::is_standard_layout<SVertex>::value, "not a standard layout");
+static_assert(sizeof(SVertex) / sizeof(float) == constexpr_accumulate(SVertex::offsets), "not matching offset layout");
+
 static const std::vector<SVertex> cubeMesh = {
-    { { -1.0f, -1.0f, -1.0f }, { 0.583f, 0.771f, 0.014f } },
-    { { -1.0f, -1.0f,  1.0f }, { 0.609f, 0.115f, 0.436f } },
-    { { -1.0f,  1.0f,  1.0f }, { 0.327f, 0.483f, 0.844f } },
-    { {  1.0f,  1.0f, -1.0f }, { 0.822f, 0.569f, 0.201f } },
-    { { -1.0f, -1.0f, -1.0f }, { 0.435f, 0.602f, 0.223f } },
-    { { -1.0f,  1.0f, -1.0f }, { 0.310f, 0.747f, 0.185f } },
-    { {  1.0f, -1.0f,  1.0f }, { 0.597f, 0.770f, 0.761f } },
-    { { -1.0f, -1.0f, -1.0f }, { 0.559f, 0.436f, 0.730f } },
-    { {  1.0f, -1.0f, -1.0f }, { 0.359f, 0.583f, 0.152f } },
-    { {  1.0f,  1.0f, -1.0f }, { 0.483f, 0.596f, 0.789f } },
-    { {  1.0f, -1.0f, -1.0f }, { 0.559f, 0.861f, 0.639f } },
-    { { -1.0f, -1.0f, -1.0f }, { 0.195f, 0.548f, 0.859f } },
-    { { -1.0f, -1.0f, -1.0f }, { 0.014f, 0.184f, 0.576f } },
-    { { -1.0f,  1.0f,  1.0f }, { 0.771f, 0.328f, 0.970f } },
-    { { -1.0f,  1.0f, -1.0f }, { 0.406f, 0.615f, 0.116f } },
-    { {  1.0f, -1.0f,  1.0f }, { 0.676f, 0.977f, 0.133f } },
-    { { -1.0f, -1.0f,  1.0f }, { 0.971f, 0.572f, 0.833f } },
-    { { -1.0f, -1.0f, -1.0f }, { 0.140f, 0.616f, 0.489f } },
-    { { -1.0f,  1.0f,  1.0f }, { 0.997f, 0.513f, 0.064f } },
-    { { -1.0f, -1.0f,  1.0f }, { 0.945f, 0.719f, 0.592f } },
-    { {  1.0f, -1.0f,  1.0f }, { 0.543f, 0.021f, 0.978f } },
-    { {  1.0f,  1.0f,  1.0f }, { 0.279f, 0.317f, 0.505f } },
-    { {  1.0f, -1.0f, -1.0f }, { 0.167f, 0.620f, 0.077f } },
-    { {  1.0f,  1.0f, -1.0f }, { 0.347f, 0.857f, 0.137f } },
-    { {  1.0f, -1.0f, -1.0f }, { 0.055f, 0.953f, 0.042f } },
-    { {  1.0f,  1.0f,  1.0f }, { 0.714f, 0.505f, 0.345f } },
-    { {  1.0f, -1.0f,  1.0f }, { 0.783f, 0.290f, 0.734f } },
-    { {  1.0f,  1.0f,  1.0f }, { 0.722f, 0.645f, 0.174f } },
-    { {  1.0f,  1.0f, -1.0f }, { 0.302f, 0.455f, 0.848f } },
-    { { -1.0f,  1.0f, -1.0f }, { 0.225f, 0.587f, 0.040f } },
-    { {  1.0f,  1.0f,  1.0f }, { 0.517f, 0.713f, 0.338f } },
-    { { -1.0f,  1.0f, -1.0f }, { 0.053f, 0.959f, 0.120f } },
-    { { -1.0f,  1.0f,  1.0f }, { 0.393f, 0.621f, 0.362f } },
-    { {  1.0f,  1.0f,  1.0f }, { 0.673f, 0.211f, 0.457f } },
-    { { -1.0f,  1.0f,  1.0f }, { 0.820f, 0.883f, 0.371f } },
-    { {  1.0f, -1.0f,  1.0f }, { 0.982f, 0.099f, 0.879f } }
-};
-*/
+    // Back
+    { {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f } },
+    { {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f } },
+    { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f } },
+    { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f } },
+    { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f } },
 
-static GLfloat vertices[] = {
-    // Positions          // Colors           // Texture Coords
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
+    // Front
+    { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f } },
+    { {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f } },
+    { {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f } },
+    { { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f } },
+    { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f } },
+
+    // Left
+    { { -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { { -1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f } },
+    { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f } },
+    { { -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f } },
+
+    // Right
+    { {  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f } },
+    { {  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { {  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f } },
+    { {  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f } },
+
+    // Bottom
+    { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { {  1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f } },
+    { {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f } },
+    { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f } },
+
+    // Top
+    { {  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f } },
+    { {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f } },
+    { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f } },
+    { { -1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f } },
+    { {  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f } }
 };
 
 CMesh::CMesh()
@@ -86,7 +92,7 @@ CMesh::CMesh()
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
     // Fill VBO with vertices
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, cubeMesh.size() * sizeof(SVertex), cubeMesh.data(), GL_STATIC_DRAW);
 
     const auto &offsets = SVertex::offsets;
 
@@ -139,6 +145,6 @@ void CMesh::Render(const glm::mat4 &mvpMatrix)
     // Using VAO for rendering
     glBindVertexArray(_vao);
     // Render vertices in VBO binded to VAO
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glDrawArrays(GL_TRIANGLES, 0, cubeMesh.size());
     glBindVertexArray(0);
 }

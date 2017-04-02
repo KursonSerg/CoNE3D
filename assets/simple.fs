@@ -1,6 +1,5 @@
 #version 330 core
 
-in vec3 fragmentColor;
 in vec2 fragmentTexCoord;
 
 out vec4 color;
@@ -9,5 +8,5 @@ uniform sampler2D fragmentTexture;
 
 void main()
 {
-    color = texture(fragmentTexture, fragmentTexCoord) * vec4(fragmentColor, 1.0f);
+    color = texture(fragmentTexture, fragmentTexCoord);
 }
