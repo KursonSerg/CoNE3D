@@ -82,6 +82,7 @@ CMesh::CMesh()
     : _texture("assets/crate.jpg")
     , _vao(0)
     , _vbo(0)
+    , _ibo(0)
 {
     // Create a Vertex Array Object (VAO) and set it as the current one
     glGenVertexArrays(1, &_vao);
@@ -93,6 +94,14 @@ CMesh::CMesh()
 
     // Fill VBO with vertices
     glBufferData(GL_ARRAY_BUFFER, cubeMesh.size() * sizeof(SVertex), cubeMesh.data(), GL_STATIC_DRAW);
+
+#if 0
+    glGenBuffers(1, &_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+
+    // Fill IBO with indices
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeElements.size() * sizeof(GLushort), cubeElements.data(), GL_STATIC_DRAW);
+#endif
 
     const auto &offsets = SVertex::offsets;
 
@@ -127,6 +136,11 @@ CMesh::~CMesh()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &_vbo);
 
+#if 0
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &_ibo);
+#endif
+
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &_vao);
 }
@@ -146,5 +160,11 @@ void CMesh::Render(const glm::mat4 &mvpMatrix)
     glBindVertexArray(_vao);
     // Render vertices in VBO binded to VAO
     glDrawArrays(GL_TRIANGLES, 0, cubeMesh.size());
+
+#if 0
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+    glDrawElements(GL_TRIANGLES, cubeElements.size(), GL_UNSIGNED_SHORT, 0);
+#endif
+
     glBindVertexArray(0);
 }

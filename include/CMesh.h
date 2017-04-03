@@ -21,6 +21,7 @@ private:
 
     GLuint _vao;
     GLuint _vbo;
+    GLuint _ibo;
 };
 
 #endif // CMESH_H
