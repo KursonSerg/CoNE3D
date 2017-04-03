@@ -13,6 +13,7 @@ CTexture::CTexture(const std::string &filename)
     , _height(0)
     , _components(0)
 {
+    stbi_set_flip_vertically_on_load(true);
     unsigned char *image = stbi_load(filename.c_str(), &_width, &_height, &_components, STBI_default);
 
     if (!image)

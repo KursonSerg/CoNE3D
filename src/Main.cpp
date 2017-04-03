@@ -43,7 +43,7 @@ private:
 
 void CWindowTest::Init()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -79,23 +79,25 @@ void CWindowTest::Render()
     // Scale * Rotation * Translation
 
     {
-        glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
+        glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
         _cubeMesh.Render(_camera.viewProjection() * model);
     }
 
+#if 0
     {
         glm::mat4 model = glm::translate( glm::mat4(1.0f), glm::vec3(3.0f, 2.0f, 0.0f) );
-        model = glm::rotate( model, glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
+        model = glm::rotate( model, glm::radians(_angle), glm::vec3(1.0f, 0.0f, 0.0f) );
         model = glm::scale( model, glm::vec3(0.75f, 0.75f, 0.75f) );
         _cubeMesh.Render(_camera.viewProjection() * model);
     }
 
     {
         glm::mat4 model = glm::translate( glm::mat4(1.0f), glm::vec3(-3.0f, -2.0f, 0.0f) );
-        model = glm::rotate( model, glm::radians(_angle), glm::vec3(1.0f, 0.0f, 0.0f) );
+        model = glm::rotate( model, glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
         model = glm::scale( model, glm::vec3(0.75f, 0.75f, 0.75f) );
         _cubeMesh.Render(_camera.viewProjection() * model);
     }
+#endif
 
     CenterMouse();
 
