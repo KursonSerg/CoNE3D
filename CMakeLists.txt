@@ -40,6 +40,7 @@ option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
 option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL "Generate installation target" OFF)
+
 include_directories("${PROJECT_SOURCE_DIR}/deps/glfw/include")
 add_subdirectory("${PROJECT_SOURCE_DIR}/deps/glfw")
 
@@ -50,8 +51,19 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/deps/glad")
 # Add glm library
 include_directories("${PROJECT_SOURCE_DIR}/deps/glm")
 
-# Add gli library
-# include_directories("${PROJECT_SOURCE_DIR}/deps/gli")
+# Add assimp library
+option(ASSIMP_BUILD_ASSIMP_TOOLS "Build the supplementary tools" OFF)
+option(ASSIMP_BUILD_TESTS "Build the test suite" OFF)
+option(ASSIMP_NO_EXPORT "Disable export functionality" ON)
+
+option(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT "Default value for all importers" OFF)
+option(ASSIMP_BUILD_OBJ_IMPORTER "Value for obj importer" ON)
+
+include_directories("${PROJECT_SOURCE_DIR}/deps/assimp/include")
+add_subdirectory("${PROJECT_SOURCE_DIR}/deps/assimp")
+
+# Other (temporary) includes
+include_directories("${PROJECT_SOURCE_DIR}/deps")
 
 # List includes
 set(INCS include/Common.h
@@ -93,8 +105,8 @@ endif()
 include_directories("${PROJECT_SOURCE_DIR}/include")
 add_executable(${PROJECT_NAME} ${INCS} ${SRCS})
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} glad glfw OpenGL32)
+  target_link_libraries(${PROJECT_NAME} glfw glad assimp OpenGL32)
 else()
-  target_link_libraries(${PROJECT_NAME} glad glfw GL X11 Xi Xrandr Xxf86vm Xinerama Xcursor pthread)
+  target_link_libraries(${PROJECT_NAME} glfw glad assimp GL X11 Xi Xrandr Xxf86vm Xinerama Xcursor pthread)
 endif()
 file(COPY ${PROJECT_SOURCE_DIR}/assets DESTINATION ${PROJECT_BINARY_DIR})
