@@ -10,9 +10,6 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-#include <tiny_obj_loader.h>
-
 template <typename T, std::size_t N>
 constexpr T constexpr_accumulate(const std::array<T, N> &a, std::size_t i = 0u)
 {
@@ -23,139 +20,80 @@ constexpr std::array<unsigned, 2> SVertex::offsets;
 static_assert(std::is_standard_layout<SVertex>::value, "not a standard layout");
 static_assert(sizeof(SVertex) / sizeof(float) == constexpr_accumulate(SVertex::offsets), "not matching offset layout");
 
-CMesh::CMesh()
+CMesh::CMesh(const std::string &path)
     : _ibo(0)
 {
-    std::string filename = "assets/Hulk/Hulk.obj";
+    std::string basePath( utils::getBasePath(path) );
 
-#if 0
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-
-    std::string err;
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename.c_str(), "assets/Hulk/");
-
-    if (!err.empty()) { // `err` may contain warning message.
-        utils::Log(utils::CFormat(L"Loading '%%': %%") << filename << err, utils::ELogLevel::Error);
-    }
-
-    if (ret)
-    {
-        _nodes.resize(materials.size());
-        _textures.reserve(materials.size());
-
-        // Loop over shapes
-        for (size_t s = 0; s < shapes.size(); s++)
-        {
-            size_t index_offset = 0;
-            const tinyobj::mesh_t &mesh = shapes[s].mesh;
-            // Loop over faces (polygons)
-            for (size_t f = 0; f < mesh.num_face_vertices.size(); f++)
-            {
-                size_t fv = mesh.num_face_vertices[f];
-
-                // Per-face material id
-                unsigned int material_id = static_cast<unsigned int>(mesh.material_ids[f]);
-                _nodes[material_id].mesh.reserve(_nodes[material_id].mesh.size() + fv);
-                _nodes[material_id].materialIndex = material_id;
-
-                // Loop over vertices in the face
-                for (size_t v = 0; v < fv; v++)
-                {
-                    // access to vertex
-                    const tinyobj::index_t &idx = mesh.indices[index_offset + v];
-
-                    SVertex vertex;
-                    vertex.position.x = attrib.vertices[3*idx.vertex_index+0];
-                    vertex.position.y = attrib.vertices[3*idx.vertex_index+1];
-                    vertex.position.z = attrib.vertices[3*idx.vertex_index+2];
-
-#if 0
-                    if (idx.normal_index != -1)
-                    {
-                        vertex.normal.x = attrib.normals[3*idx.normal_index+0];
-                        vertex.normal.y = attrib.normals[3*idx.normal_index+1];
-                        vertex.normal.z = attrib.normals[3*idx.normal_index+2];
-                    }
-#endif
-
-                    if (idx.texcoord_index != -1)
-                    {
-                        vertex.uv.x = attrib.texcoords[2*idx.texcoord_index+0];
-                        vertex.uv.y = attrib.texcoords[2*idx.texcoord_index+1];
-                    }
-
-                    _nodes[material_id].mesh.emplace_back(vertex);
-                }
-                index_offset += fv;
-            }
-        }
-
-        for (size_t m = 0; m < materials.size(); ++m) {
-            _textures.emplace_back(new CTexture("assets/Hulk/" + materials[m].diffuse_texname));
-        }
-    }
-#else
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(filename,
+    const aiScene* scene = importer.ReadFile(path,
                                              aiProcess_CalcTangentSpace      |
                                              aiProcess_Triangulate           |
                                              aiProcess_JoinIdenticalVertices |
                                              aiProcess_SortByPType);
 
     if (!scene)
-    {
-        utils::Log(utils::CFormat(L"Loading '%%': %%") << filename << importer.GetErrorString(), utils::ELogLevel::Error);
-    }
+        utils::Log(utils::CFormat(L"Loading '%%': %%") << path << importer.GetErrorString(), utils::ELogLevel::Error);
 
     _nodes.resize(scene->mNumMeshes);
     _textures.resize(scene->mNumMaterials);
 
     const unsigned int texIndex = 0;
 
-    // Loop all children
-    for (unsigned int c = 0; c < scene->mRootNode->mNumChildren; ++c)
+    // Loop through all meshes in a scene
+    for (unsigned int m = 0; m < scene->mNumMeshes; ++m)
     {
-        const struct aiNode* node = scene->mRootNode->mChildren[c];
-        for (unsigned int m = 0; m < node->mNumMeshes; ++m)
+        const struct aiMesh* mesh = scene->mMeshes[m];
+
+#ifdef _DEBUG
+        // Calc size to reserve vertex vector
+        unsigned int vertexCount = 0;
+        for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
+            vertexCount += mesh->mFaces[f].mNumIndices;
+        assert(vertexCount == mesh->mNumFaces * 3);
+#endif
+        // Indices number in a face is always 3, because we triangulate scene
+        _nodes[m].mesh.reserve(mesh->mNumFaces * 3);
+        _nodes[m].materialIndex = mesh->mMaterialIndex;
+
+        for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
         {
-            const struct aiMesh* mesh = scene->mMeshes[node->mMeshes[m]];
-            for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
+            const struct aiFace* face = &mesh->mFaces[f];
+            for (unsigned int i = 0; i < face->mNumIndices; ++i)
             {
-                const struct aiFace* face = &mesh->mFaces[f];
-                for (unsigned int i = 0; i < face->mNumIndices; ++i)
+                unsigned int index = face->mIndices[i];
+
+                SVertex vertex;
+                vertex.position.x = mesh->mVertices[index].x;
+                vertex.position.y = mesh->mVertices[index].y;
+                vertex.position.z = mesh->mVertices[index].z;
+
+                if (mesh->HasTextureCoords(texIndex))
                 {
-                    unsigned int index = face->mIndices[i];
-
-                    SVertex vertex;
-                    vertex.position.x = mesh->mVertices[index].x;
-                    vertex.position.y = mesh->mVertices[index].y;
-                    vertex.position.z = mesh->mVertices[index].z;
-
-                    if (mesh->HasTextureCoords(texIndex))
-                    {
-                        vertex.uv.x = mesh->mTextureCoords[texIndex][index].x;
-                        vertex.uv.y = mesh->mTextureCoords[texIndex][index].y;
-                    }
-
-                    _nodes[m].mesh.emplace_back(vertex);
-                    _nodes[m].materialIndex = mesh->mMaterialIndex;
+                    vertex.uv.x = mesh->mTextureCoords[texIndex][index].x;
+                    vertex.uv.y = mesh->mTextureCoords[texIndex][index].y;
                 }
+
+                _nodes[m].mesh.emplace_back(vertex);
             }
         }
     }
 
-    // getTexture Filenames and Numb of Textures
+#ifdef _DEBUG
+    for (size_t i = 0; i < _nodes.size(); ++i)
+        assert(_nodes[i].mesh.size() == _nodes[i].mesh.capacity());
+#endif
+
+    // Get diffuse texture filenames
     for (unsigned int m = 0; m < scene->mNumMaterials; ++m)
     {
         const aiMaterial* material = scene->mMaterials[m];
         if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {
-            aiString path;
-            if (material->GetTexture(aiTextureType_DIFFUSE, texIndex, &path) == AI_SUCCESS)
+            aiString texturePath;
+            if (material->GetTexture(aiTextureType_DIFFUSE, texIndex, &texturePath) == AI_SUCCESS)
             {
-                std::string fullPath = std::string("assets/Hulk/") + path.C_Str();
+                std::string fullPath = basePath + texturePath.C_Str();
                 try {
                     _textures[m].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
@@ -165,7 +103,6 @@ CMesh::CMesh()
             }
         }
     }
-#endif
 
     _vao.resize(_nodes.size());
     _vbo.resize(_nodes.size());

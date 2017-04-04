@@ -2,6 +2,12 @@
 #include <CLogger.h>
 
 namespace utils {
+std::string getBasePath(const std::string &path)
+{
+    size_t pos = path.find_last_of("\\/");
+    return (std::string::npos == pos) ? "" : path.substr(0, pos + 1);
+}
+
 // http://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
 size_t LoadFile(const std::wstring &filename, bool binary, std::wstring &buffer)
 {

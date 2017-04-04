@@ -36,7 +36,7 @@ struct SMesh
 class CMesh
 {
 public:
-    CMesh();
+    CMesh(const std::string &path);
     ~CMesh();
 
     void Render(const glm::mat4 &mvpMatrix);

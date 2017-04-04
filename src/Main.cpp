@@ -9,6 +9,7 @@ class CWindowTest : public CWindow
 public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
+        , _mesh("assets/Hulk/Hulk.obj")
         , _angle(0.0f)
         , _speed(45.0f)
         , _movementDirection(EDirection::No)
@@ -33,7 +34,7 @@ public:
 
 private:
     CCamera _camera;
-    CMesh   _cubeMesh;
+    CMesh   _mesh;
 
     float _angle;
     float _speed;
@@ -80,7 +81,7 @@ void CWindowTest::Render()
 
     {
         glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
-        _cubeMesh.Render(_camera.viewProjection() * model);
+        _mesh.Render(_camera.viewProjection() * model);
     }
 
 #if 0
