@@ -19,8 +19,8 @@ public:
         Resize(width, height); // @TODO
         Init();
 
-        _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vs"));
-        _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.fs"));
+        _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vert"));
+        _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.frag"));
 
         _program.Link();
         _program.Validate();
