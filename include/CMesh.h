@@ -39,11 +39,9 @@ public:
     CMesh(const std::string &path);
     ~CMesh();
 
-    void Render(const glm::mat4 &mvpMatrix);
+    void Render();
 
 private:
-    CProgram _program;
-
     std::vector<SMesh> _nodes;
     std::vector<std::unique_ptr<CTexture>> _textures;
 

@@ -18,6 +18,12 @@ public:
 
         Resize(width, height); // @TODO
         Init();
+
+        _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vs"));
+        _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.fs"));
+
+        _program.Link();
+        _program.Validate();
     }
 
     virtual ~CWindowTest()
@@ -33,8 +39,9 @@ public:
     virtual void Cursor(float xpos, float ypos) override;
 
 private:
-    CCamera _camera;
-    CMesh   _mesh;
+    CCamera  _camera;
+    CProgram _program;
+    CMesh    _mesh;
 
     float _angle;
     float _speed;
@@ -77,11 +84,22 @@ void CWindowTest::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Scale * Rotation * Translation
+    // Set shader program as the active one
+    _program.Use();
 
+    // Set view & projection matrix in shader
+    GLint viewProjectionLocation = _program.GetUniform("viewProjection");
+    glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(_camera.viewProjection()));
+
+    // Scale * Rotation * Translation
     {
         glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
-        _mesh.Render(_camera.viewProjection() * model);
+
+        // Set model matrix in shader
+        GLint viewProjectionLocation = _program.GetUniform("model");
+        glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+        _mesh.Render();
     }
 
 #if 0
@@ -99,6 +117,8 @@ void CWindowTest::Render()
         _cubeMesh.Render(_camera.viewProjection() * model);
     }
 #endif
+
+    _program.Unuse();
 
     CenterMouse();
 

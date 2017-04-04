@@ -144,18 +144,6 @@ CMesh::CMesh(const std::string &path)
         }
     }
     glBindVertexArray(0);
-
-    _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vs"));
-    _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.fs"));
-
-//    CProgram::AttribInfo attribs;
-//    attribs[0] = "position";
-//    attribs[1] = "color";
-//    _program.BindAttrib(attribs);
-
-    _program.Link();
-    _program.Use();
-    _program.Validate();
 }
 
 CMesh::~CMesh()
@@ -172,15 +160,8 @@ CMesh::~CMesh()
     glDeleteVertexArrays(_vao.size(), _vao.data());
 }
 
-void CMesh::Render(const glm::mat4 &mvpMatrix)
+void CMesh::Render()
 {
-    // Set shader program as the active one
-    _program.Use();
-
-    // Set perspective matrix in shader
-    GLint mvpMatrixLocation = _program.GetUniform("mvpMatrix");
-    glUniformMatrix4fv(mvpMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-
     for (size_t i = 0; i < _vao.size(); ++i)
     {
         const unsigned int materialIndex = _nodes[i].materialIndex;
