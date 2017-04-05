@@ -19,11 +19,17 @@ public:
         Resize(width, height); // @TODO
         Init();
 
-        _program.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vert"));
-        _program.AttachShader(CShader(EShaderType::Fragment, "assets/simple.frag"));
+        _simple.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vert"));
+        _simple.AttachShader(CShader(EShaderType::Fragment, "assets/simple.frag"));
 
-        _program.Link();
-        _program.Validate();
+        _simple.Link();
+        _simple.Validate();
+
+        _shading.AttachShader(CShader(EShaderType::Vertex, "assets/shading.vert"));
+        _shading.AttachShader(CShader(EShaderType::Fragment, "assets/shading.frag"));
+
+        _shading.Link();
+        _shading.Validate();
     }
 
     virtual ~CWindowTest()
@@ -40,7 +46,8 @@ public:
 
 private:
     CCamera  _camera;
-    CProgram _program;
+    CProgram _simple;
+    CProgram _shading;
     CMesh    _mesh;
 
     float _angle;
@@ -84,20 +91,27 @@ void CWindowTest::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    bool useLight = true;
+
     // Set shader program as the active one
-    _program.Use();
+    CProgram &current = useLight ? _shading : _simple;
 
-    // Set view & projection matrix in shader
-    GLint viewProjectionLocation = _program.GetUniform("viewProjection");
-    glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(_camera.viewProjection()));
+    current.Use();
 
-    // Scale * Rotation * Translation
     {
+        // Model matrix: Scale * Rotation * Translation
         glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
 
-        // Set model matrix in shader
-        GLint viewProjectionLocation = _program.GetUniform("model");
-        glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(model));
+        if (useLight)
+        {
+            glm::vec3 lightPos = glm::vec3(4.0f, 4.0f, 4.0f);
+            glUniform3f(current.GetUniform("LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+        }
+
+        // Set model & view & projection matrix in shader
+        glUniformMatrix4fv(current.GetUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(current.GetUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
+        glUniformMatrix4fv(current.GetUniform("P"), 1, GL_FALSE, glm::value_ptr(_camera.projection()));
 
         _mesh.Render();
     }
@@ -118,7 +132,7 @@ void CWindowTest::Render()
     }
 #endif
 
-    _program.Unuse();
+    current.Unuse();
 
     CenterMouse();
 

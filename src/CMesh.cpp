@@ -16,7 +16,7 @@ constexpr T constexpr_accumulate(const std::array<T, N> &a, std::size_t i = 0u)
     return i < N ? (a[i] + constexpr_accumulate(a, i + 1u)) : T {};
 }
 
-constexpr std::array<unsigned, 2> SVertex::offsets;
+constexpr std::array<unsigned, SVertex::n> SVertex::offsets;
 static_assert(std::is_standard_layout<SVertex>::value, "not a standard layout");
 static_assert(sizeof(SVertex) / sizeof(float) == constexpr_accumulate(SVertex::offsets), "not matching offset layout");
 
@@ -36,9 +36,10 @@ CMesh::CMesh(const std::string &path)
         utils::Log(utils::CFormat(L"Loading '%%': %%") << path << importer.GetErrorString(), utils::ELogLevel::Error);
 
     _nodes.resize(scene->mNumMeshes);
-    _textures.resize(scene->mNumMaterials);
+    _textures.resize(scene->mNumMaterials); // @TODO Unify textures & normals to materials
+    _normalMaps.resize(scene->mNumMaterials);
 
-    const unsigned int texIndex = 0;
+    const unsigned int channel = 0;
 
     // Loop through all meshes in a scene
     for (unsigned int m = 0; m < scene->mNumMeshes; ++m)
@@ -68,10 +69,17 @@ CMesh::CMesh(const std::string &path)
                 vertex.position.y = mesh->mVertices[index].y;
                 vertex.position.z = mesh->mVertices[index].z;
 
-                if (mesh->HasTextureCoords(texIndex))
+                if (mesh->HasTextureCoords(channel))
                 {
-                    vertex.uv.x = mesh->mTextureCoords[texIndex][index].x;
-                    vertex.uv.y = mesh->mTextureCoords[texIndex][index].y;
+                    vertex.uv.x = mesh->mTextureCoords[channel][index].x;
+                    vertex.uv.y = mesh->mTextureCoords[channel][index].y;
+                }
+
+                if (mesh->HasNormals())
+                {
+                    vertex.normal.x = mesh->mNormals[index].x;
+                    vertex.normal.y = mesh->mNormals[index].y;
+                    vertex.normal.z = mesh->mNormals[index].z;
                 }
 
                 _nodes[m].mesh.emplace_back(vertex);
@@ -91,13 +99,28 @@ CMesh::CMesh(const std::string &path)
         if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {
             aiString texturePath;
-            if (material->GetTexture(aiTextureType_DIFFUSE, texIndex, &texturePath) == AI_SUCCESS)
+            if (material->GetTexture(aiTextureType_DIFFUSE, channel, &texturePath) == AI_SUCCESS)
             {
                 std::string fullPath = basePath + texturePath.C_Str();
                 try {
                     _textures[m].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
                     _textures[m].reset();
+                    utils::Log(ex.what(), utils::ELogLevel::Warning);
+                }
+            }
+        }
+
+        if (material->GetTextureCount(aiTextureType_NORMALS) > 0)
+        {
+            aiString texturePath;
+            if (material->GetTexture(aiTextureType_NORMALS, channel, &texturePath) == AI_SUCCESS)
+            {
+                std::string fullPath = basePath + texturePath.C_Str();
+                try {
+                    _normalMaps[m].reset(new CTexture(fullPath));
+                } catch (const std::exception &ex) {
+                    _normalMaps[m].reset();
                     utils::Log(ex.what(), utils::ELogLevel::Warning);
                 }
             }

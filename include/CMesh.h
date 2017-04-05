@@ -13,13 +13,14 @@ struct SVertex
 {
     glm::vec3 position;
     glm::vec2 uv;
-#if 0
     glm::vec3 normal;
+#if 0
     glm::vec3 tangent;
     glm::vec3 bitangent;
 #endif
 
-    static constexpr std::array<unsigned, 2> offsets { { 3, 2 } };
+    static constexpr size_t n = 3;
+    static constexpr std::array<unsigned, n> offsets { { 3, 2, 3 } };
 };
 
 struct SMesh
@@ -44,6 +45,7 @@ public:
 private:
     std::vector<SMesh> _nodes;
     std::vector<std::unique_ptr<CTexture>> _textures;
+    std::vector<std::unique_ptr<CTexture>> _normalMaps;
 
     std::vector<GLuint> _vao;
     std::vector<GLuint> _vbo;
