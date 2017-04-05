@@ -1,6 +1,8 @@
 #include <Common.h>
 #include <CLogger.h>
 
+#include <map>
+
 namespace utils {
 std::string getBasePath(const std::string &path)
 {
@@ -55,96 +57,71 @@ size_t LoadFile(const std::string &filename, bool binary, std::string &buffer)
     return buffer.size();
 }
 
-void CheckOpenGLError()
+static const std::map<GLenum, std::string> stringsByEnums =
 {
-    GLenum error_code = GL_NO_ERROR;
-    while ( ( error_code = glGetError() ) != GL_NO_ERROR ) {
-        std::string error;
+    { GL_NO_ERROR, "no error" },
+    { GL_INVALID_ENUM, "invalid enum" },
+    { GL_INVALID_VALUE, "invalid value" },
+    { GL_INVALID_OPERATION, "invalid operation" },
+    { GL_STACK_OVERFLOW, "stack overflow" },
+    { GL_STACK_UNDERFLOW, "stack underflow" },
+    { GL_OUT_OF_MEMORY, "out of memory" },
+    { GL_INVALID_FRAMEBUFFER_OPERATION, "invalid framebuffer operation" },
+    { GL_CONTEXT_LOST, "context lost" },
+    { GL_DEBUG_SOURCE_API, "API" },
+    { GL_DEBUG_SOURCE_WINDOW_SYSTEM, "window system" },
+    { GL_DEBUG_SOURCE_SHADER_COMPILER, "shader compiler" },
+    { GL_DEBUG_SOURCE_THIRD_PARTY, "third party" },
+    { GL_DEBUG_SOURCE_APPLICATION, "application" },
+    { GL_DEBUG_SOURCE_OTHER, "other" },
+    { GL_DEBUG_TYPE_ERROR, "error" },
+    { GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, "deprecated behavior" },
+    { GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR, "undefined behavior" },
+    { GL_DEBUG_TYPE_PORTABILITY, "portability" },
+    { GL_DEBUG_TYPE_PERFORMANCE, "performance" },
+    { GL_DEBUG_TYPE_OTHER, "other" },
+    { GL_DEBUG_TYPE_MARKER, "marker" },
+    { GL_DEBUG_TYPE_PUSH_GROUP, "push group" },
+    { GL_DEBUG_TYPE_POP_GROUP, "pop group" },
+    { GL_DEBUG_SEVERITY_HIGH, "high" },
+    { GL_DEBUG_SEVERITY_MEDIUM, "medium" },
+    { GL_DEBUG_SEVERITY_LOW, "low" },
+    { GL_DEBUG_SEVERITY_NOTIFICATION, "notification" },
+    { GL_DONT_CARE, "don't care" }
+};
 
-        switch (error_code) {
-        case GL_INVALID_OPERATION:
-            error = "GL_INVALID_OPERATION";
-            break;
-        case GL_INVALID_FRAMEBUFFER_OPERATION:
-            error = "GL_INVALID_FRAMEBUFFER_OPERATION";
-            break;
-        case GL_INVALID_ENUM:
-            error = "GL_INVALID_ENUM";
-            break;
-        case GL_INVALID_VALUE:
-            error = "GL_INVALID_VALUE";
-            break;
-        case GL_STACK_UNDERFLOW:
-            error = "GL_STACK_UNDERFLOW";
-            break;
-        case GL_STACK_OVERFLOW:
-            error = "GL_STACK_OVERFLOW";
-            break;
-        case GL_OUT_OF_MEMORY:
-            error = "GL_OUT_OF_MEMORY";
-            break;
-        }
-
-        utils::Log(error, utils::ELogLevel::Error);
+inline std::string stringByEnum(GLenum value)
+{
+    try {
+        return stringsByEnums.at(value);
+    } catch (const std::exception &) {
+        return std::to_string(value);
     }
 }
 
-void APIENTRY OpenGLDebugMessageCallback(GLenum source,
-                                         GLenum type,
-                                         GLuint id,
-                                         GLenum severity,
-                                         GLsizei length,
-                                         const GLchar *message,
-                                         const void *user_param)
+void checkErrorStatus()
 {
-    UNUSED(source);
-    UNUSED(length);
+    GLenum error = GL_NO_ERROR;
+    while ( ( error = glGetError() ) != GL_NO_ERROR ) {
+        utils::Log("OpenGL error: " + stringByEnum(error), utils::ELogLevel::Error);
+    }
+}
+
+void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                                   GLsizei length, const GLchar *message, const void *user_param)
+{
     UNUSED(user_param);
+
+    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+        return;
 
     CFormat debug_message(L"\n"
         L"-------------------- OpenGL Message Start --------------------\n"
-        L"Message: %%\nType: %%\nID: %%\nSeverity: %%\n"
+        L"Source: %%\nType: %%\nID: %%\nSeverity: %%\nMessage: %%\n"
         L"--------------------  OpenGL Message End  --------------------");
 
-    debug_message << message;
-
-    switch (type) {
-    case GL_DEBUG_TYPE_ERROR:
-        debug_message << "ERROR";
-        break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        debug_message << "DEPRECATED_BEHAVIOR";
-        break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        debug_message << "UNDEFINED_BEHAVIOR";
-        break;
-    case GL_DEBUG_TYPE_PORTABILITY:
-        debug_message << "PORTABILITY";
-        break;
-    case GL_DEBUG_TYPE_PERFORMANCE:
-        debug_message << "PERFORMANCE";
-        break;
-    case GL_DEBUG_TYPE_OTHER:
-        debug_message << "OTHER";
-        break;
-    }
-
-    debug_message << id;
-
-    switch (severity) {
-    case GL_DEBUG_SEVERITY_LOW:
-        debug_message << "LOW";
-        break;
-    case GL_DEBUG_SEVERITY_MEDIUM:
-        debug_message << "MEDIUM";
-        break;
-    case GL_DEBUG_SEVERITY_HIGH:
-        debug_message << "HIGH";
-        break;
-    default:
-        debug_message << "OTHER";
-        break;
-    }
+    debug_message << stringByEnum(source) << stringByEnum(type) << id << stringByEnum(severity)
+                  << std::string(message, static_cast<size_t>(length));
 
     utils::Log(debug_message, utils::ELogLevel::Debug);
 }

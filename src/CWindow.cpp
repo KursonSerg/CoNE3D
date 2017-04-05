@@ -8,7 +8,7 @@ CWindow::CWindow(int width, int height, const std::wstring &title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef _DEBUG
+#ifndef NDEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
@@ -30,11 +30,11 @@ CWindow::CWindow(int width, int height, const std::wstring &title)
     utils::Log(utils::CFormat(L"OpenGL version %%.%% loaded")
                << GLVersion.major << GLVersion.minor, utils::ELogLevel::Debug);
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     if (glDebugMessageCallback) {
         utils::Log(L"Registering OpenGL debug message callback...", utils::ELogLevel::Debug);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(utils::OpenGLDebugMessageCallback, nullptr);
+        glDebugMessageCallback(utils::debugMessageCallback, nullptr);
         GLuint ids = 0;
         glDebugMessageControl(GL_DONT_CARE,
                               GL_DONT_CARE,

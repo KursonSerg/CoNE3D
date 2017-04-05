@@ -45,7 +45,7 @@ CMesh::CMesh(const std::string &path)
     {
         const struct aiMesh* mesh = scene->mMeshes[m];
 
-#ifdef _DEBUG
+#ifndef NDEBUG
         // Calc size to reserve vertex vector
         unsigned int vertexCount = 0;
         for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
@@ -79,7 +79,7 @@ CMesh::CMesh(const std::string &path)
         }
     }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     for (size_t i = 0; i < _nodes.size(); ++i)
         assert(_nodes[i].mesh.size() == _nodes[i].mesh.capacity());
 #endif

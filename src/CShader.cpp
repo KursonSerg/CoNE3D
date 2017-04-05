@@ -53,7 +53,7 @@ void CShader::Check(GLenum status)
         }
     }
 
-    utils::CheckOpenGLError();
+    utils::checkErrorStatus();
 }
 
 CProgram::CProgram() :
@@ -117,7 +117,7 @@ void CProgram::Check(GLenum status)
         }
     }
 
-    utils::CheckOpenGLError();
+    utils::checkErrorStatus();
 }
 
 void CProgram::BindAttrib(GLuint index, const GLchar *name)

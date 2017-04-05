@@ -122,7 +122,7 @@ void CWindowTest::Render()
 
     CenterMouse();
 
-    utils::CheckOpenGLError();
+    utils::checkErrorStatus();
 }
 
 void CWindowTest::Resize(int width, int height)
