@@ -53,7 +53,9 @@ CWindow::CWindow(int width, int height, const std::wstring &title)
     glfwSetWindowUserPointer(_window.get(), this);
     glfwSetFramebufferSizeCallback(_window.get(), FramebufferSizeCallback);
     glfwSetKeyCallback(_window.get(), KeyCallback);
+#ifdef NDEBUG
     glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+#endif
     glfwSetCursorPosCallback(_window.get(), CursorPosCallback);
     glfwSetInputMode(_window.get(), GLFW_STICKY_KEYS, 1);
 }
@@ -62,8 +64,10 @@ void CWindow::Process()
 {
     glfwSwapInterval(0);
 
-    int fpsCounter = 0;
+#ifndef NDEBUG
+    int nbFrames = 0;
     double elapsedTime = 0.0;
+#endif
 
     double previousTime = glfwGetTime();
     while ( Running() ) {
@@ -71,16 +75,19 @@ void CWindow::Process()
         double deltaTime = currentTime - previousTime;
         previousTime = currentTime;
 
+#ifndef NDEBUG
+        elapsedTime += deltaTime; ++nbFrames;
+        if (elapsedTime >= 1.0) {
+            utils::Log(utils::CFormat(L"Performance %% ms/frame")
+                       << 1000.0 / static_cast<double>(nbFrames), utils::ELogLevel::Debug);
+            elapsedTime -= 1.0; nbFrames = 0;
+        }
+#endif
+
         // Poll for and process events
         glfwPollEvents();
 
         Update(static_cast<float>(deltaTime));
-
-        elapsedTime += deltaTime; ++fpsCounter;
-        if (elapsedTime >= 1.0) {
-            utils::Log(utils::CFormat(L"FPS: %%") << fpsCounter, utils::ELogLevel::Debug);
-            elapsedTime = 0.0; fpsCounter = 0;
-        }
 
         // Render window
         Render();

@@ -26,14 +26,12 @@ CMesh::CMesh(const std::string &path)
     std::string basePath( utils::getBasePath(path) );
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path,
-                                             aiProcess_CalcTangentSpace      |
-                                             aiProcess_Triangulate           |
-                                             aiProcess_JoinIdenticalVertices |
-                                             aiProcess_SortByPType);
+    const aiScene* scene = importer.ReadFile(path, aiProcessPreset_TargetRealtime_Fast |
+                                             aiProcess_RemoveRedundantMaterials);
 
     if (!scene)
-        utils::Log(utils::CFormat(L"Loading '%%': %%") << path << importer.GetErrorString(), utils::ELogLevel::Error);
+        throw std::runtime_error( utils::ws2s(utils::CFormat(L"Failed to load scene '%%' with error: %%")
+                                              << path << importer.GetErrorString()) );
 
     _nodes.resize(scene->mNumMeshes);
     _textures.resize(scene->mNumMaterials); // @TODO Unify textures & normals to materials
@@ -82,6 +80,17 @@ CMesh::CMesh(const std::string &path)
                     vertex.normal.z = mesh->mNormals[index].z;
                 }
 
+                if (mesh->HasTangentsAndBitangents())
+                {
+                    vertex.tangent.x = mesh->mTangents[index].x;
+                    vertex.tangent.y = mesh->mTangents[index].y;
+                    vertex.tangent.z = mesh->mTangents[index].z;
+
+                    vertex.bitangent.x = mesh->mBitangents[index].x;
+                    vertex.bitangent.y = mesh->mBitangents[index].y;
+                    vertex.bitangent.z = mesh->mBitangents[index].z;
+                }
+
                 _nodes[m].mesh.emplace_back(vertex);
             }
         }
@@ -102,6 +111,7 @@ CMesh::CMesh(const std::string &path)
             if (material->GetTexture(aiTextureType_DIFFUSE, channel, &texturePath) == AI_SUCCESS)
             {
                 std::string fullPath = basePath + texturePath.C_Str();
+                std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
                 try {
                     _textures[m].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
@@ -117,6 +127,7 @@ CMesh::CMesh(const std::string &path)
             if (material->GetTexture(aiTextureType_NORMALS, channel, &texturePath) == AI_SUCCESS)
             {
                 std::string fullPath = basePath + texturePath.C_Str();
+                std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
                 try {
                     _normalMaps[m].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
@@ -188,9 +199,22 @@ void CMesh::Render()
     for (size_t i = 0; i < _vao.size(); ++i)
     {
         const unsigned int materialIndex = _nodes[i].materialIndex;
+
+        // Bind our normal texture in Texture Unit 1
+        glActiveTexture(GL_TEXTURE1);
+        if (materialIndex < _normalMaps.size() && _normalMaps[materialIndex]) {
+            _normalMaps[materialIndex]->bind();
+        }
+        // Set our "NormalTextureSampler" sampler to user Texture Unit 1
+        glUniform1i(6, 1); // @TODO
+
+        // Bind our diffuse texture in Texture Unit 0
+        glActiveTexture(GL_TEXTURE0);
         if (materialIndex < _textures.size() && _textures[materialIndex]) {
             _textures[materialIndex]->bind();
         }
+        // Set our "DiffuseTextureSampler" sampler to user Texture Unit 0
+        glUniform1i(5, 0); // @TODO
 
         // Using VAO for rendering
         glBindVertexArray(_vao[i]);

@@ -14,13 +14,11 @@ struct SVertex
     glm::vec3 position;
     glm::vec2 uv;
     glm::vec3 normal;
-#if 0
     glm::vec3 tangent;
     glm::vec3 bitangent;
-#endif
 
-    static constexpr size_t n = 3;
-    static constexpr std::array<unsigned, n> offsets { { 3, 2, 3 } };
+    static constexpr size_t n = 5;
+    static constexpr std::array<unsigned, n> offsets { { 3, 2, 3, 3, 3 } };
 };
 
 struct SMesh

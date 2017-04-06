@@ -1,12 +1,12 @@
 #include <CCamera.h>
 #include <CLogger.h>
 
-CCamera::CCamera()
-    : _position(5.0f, 4.0f, 3.0f)
+CCamera::CCamera(const glm::vec3 &position, const glm::vec3 &look)
+    : _position(position)
     , _horizontalAngle(0.0f)
     , _verticalAngle(0.0f)
 {
-    lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+    lookAt(look);
 }
 
 void CCamera::setPosition(const glm::vec3 &position)
@@ -69,7 +69,7 @@ void CCamera::updateViewMatrix()
 
 void CCamera::normalizeAngles()
 {
-    static const float maxVerticalAngle = 85.0f;
+    static const float maxVerticalAngle = 85.0f; // @TODO Replace with quaternions
 
     _horizontalAngle = std::fmod(_horizontalAngle, 360.0f);
     // fmod can return negative values, but this will make them all positive

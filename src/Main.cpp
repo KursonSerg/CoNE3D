@@ -9,7 +9,8 @@ class CWindowTest : public CWindow
 public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
-        , _mesh("assets/Hulk/Hulk.obj")
+        , _camera(glm::vec3(5.0f, 4.0f, 4.0f), glm::vec3(0.0f, 2.0f, 0.0f))
+        , _mesh("assets/hulk/hulk.obj")
         , _angle(0.0f)
         , _speed(45.0f)
         , _movementDirection(EDirection::No)
@@ -25,8 +26,8 @@ public:
         _simple.Link();
         _simple.Validate();
 
-        _shading.AttachShader(CShader(EShaderType::Vertex, "assets/shading.vert"));
-        _shading.AttachShader(CShader(EShaderType::Fragment, "assets/shading.frag"));
+        _shading.AttachShader(CShader(EShaderType::Vertex, "assets/normal_mapping.vert"));
+        _shading.AttachShader(CShader(EShaderType::Fragment, "assets/normal_mapping.frag"));
 
         _shading.Link();
         _shading.Validate();
@@ -111,7 +112,8 @@ void CWindowTest::Render()
         // Set model & view & projection matrix in shader
         glUniformMatrix4fv(current.GetUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(current.GetUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
-        glUniformMatrix4fv(current.GetUniform("P"), 1, GL_FALSE, glm::value_ptr(_camera.projection()));
+        glUniformMatrix4fv(current.GetUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
+        glUniformMatrix3fv(current.GetUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.view() * model)));
 
         _mesh.Render();
     }

@@ -45,7 +45,7 @@ ALLOW_FLAGS_FOR_ENUM(EDirection)
 class CCamera
 {
 public:
-    CCamera();
+    CCamera(const glm::vec3 &position, const glm::vec3 &look);
 
     /**
      * @brief The position of the camera
