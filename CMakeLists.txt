@@ -62,8 +62,8 @@ option(ASSIMP_BUILD_OBJ_IMPORTER "Value for obj importer" ON)
 include_directories("${PROJECT_SOURCE_DIR}/deps/assimp/include")
 add_subdirectory("${PROJECT_SOURCE_DIR}/deps/assimp")
 
-# Other (temporary) includes
-include_directories("${PROJECT_SOURCE_DIR}/deps")
+# Add stb libraries collection (include only)
+include_directories("${PROJECT_SOURCE_DIR}/deps/stb")
 
 # List includes
 set(INCS include/Common.h
