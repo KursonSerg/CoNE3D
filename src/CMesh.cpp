@@ -1,14 +1,13 @@
 #include <CMesh.h>
 
-#include <CLogger.h>
-
-#include <array>
 #include <numeric>
 #include <type_traits>
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+
+#include <CLogger.h>
 
 template <typename T, std::size_t N>
 constexpr T constexpr_accumulate(const std::array<T, N> &a, std::size_t i = 0u)

@@ -1,6 +1,7 @@
 #ifndef CMESH_H
 #define CMESH_H
 
+#include <array>
 #include <vector>
 
 #include <glm/glm.hpp>
