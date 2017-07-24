@@ -53,7 +53,7 @@ CWindow::CWindow(int width, int height, const std::wstring &title)
     glfwSetWindowUserPointer(_window.get(), this);
     glfwSetFramebufferSizeCallback(_window.get(), FramebufferSizeCallback);
     glfwSetKeyCallback(_window.get(), KeyCallback);
-#ifdef NDEBUG
+#if defined(NDEBUG) || defined(_WIN32) || defined(WIN32)
     glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
     glfwSetCursorPosCallback(_window.get(), CursorPosCallback);
