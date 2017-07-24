@@ -17,7 +17,7 @@ public:
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
 
-        Resize(width, height); // @TODO
+        Resize(width, height); // FIXME: Move to another place (but not CWindow constructor)
         Init();
 
         _simple.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vert"));
@@ -31,6 +31,8 @@ public:
 
         _shading.Link();
         _shading.Validate();
+
+        _shading.LoadUniforms();
     }
 
     virtual ~CWindowTest()

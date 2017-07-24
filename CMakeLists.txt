@@ -109,4 +109,6 @@ if(WIN32)
 else()
   target_link_libraries(${PROJECT_NAME} glfw glad assimp GL X11 Xi Xrandr Xxf86vm Xinerama Xcursor pthread)
 endif()
+
+# Copy all assets
 file(COPY ${PROJECT_SOURCE_DIR}/assets DESTINATION ${PROJECT_BINARY_DIR})

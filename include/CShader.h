@@ -41,10 +41,7 @@ public:
     void Use();
     void Unuse();
     void Validate();
-
-    void BindAttrib(GLuint index, const GLchar *name);
-    typedef std::map<GLuint, std::string> AttribInfo;
-    void BindAttrib(AttribInfo attribs);
+    void LoadUniforms(); // TODO: Add semantic parsing
 
     GLint GetAttrib(const GLchar *name) const;
     GLint GetUniform(const GLchar *name) const;

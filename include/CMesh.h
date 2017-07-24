@@ -33,6 +33,15 @@ struct SMesh
     unsigned int materialIndex;
 };
 
+struct SMaterial
+{
+    SMaterial()
+    {
+    }
+
+    std::array<std::unique_ptr<CTexture>, 2> _textures;
+};
+
 class CMesh
 {
 public:
@@ -43,8 +52,7 @@ public:
 
 private:
     std::vector<SMesh> _nodes;
-    std::vector<std::unique_ptr<CTexture>> _textures;
-    std::vector<std::unique_ptr<CTexture>> _normalMaps;
+    std::vector<SMaterial> _materials;
 
     std::vector<GLuint> _vao;
     std::vector<GLuint> _vbo;

@@ -69,7 +69,7 @@ void CCamera::updateViewMatrix()
 
 void CCamera::normalizeAngles()
 {
-    static const float maxVerticalAngle = 85.0f; // @TODO Replace with quaternions
+    static const float maxVerticalAngle = 85.0f; // TODO: Replace with quaternions
 
     _horizontalAngle = std::fmod(_horizontalAngle, 360.0f);
     // fmod can return negative values, but this will make them all positive

@@ -33,8 +33,7 @@ CMesh::CMesh(const std::string &path)
                                               << path << importer.GetErrorString()) );
 
     _nodes.resize(scene->mNumMeshes);
-    _textures.resize(scene->mNumMaterials); // @TODO Unify textures & normals to materials
-    _normalMaps.resize(scene->mNumMaterials);
+    _materials.resize(scene->mNumMaterials);
 
     const unsigned int channel = 0;
 
@@ -112,9 +111,9 @@ CMesh::CMesh(const std::string &path)
                 std::string fullPath = basePath + texturePath.C_Str();
                 std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
                 try {
-                    _textures[m].reset(new CTexture(fullPath));
+                    _materials[m]._textures[0].reset(new CTexture(fullPath)); // FIXME: Add enum for texture types
                 } catch (const std::exception &ex) {
-                    _textures[m].reset();
+                    _materials[m]._textures[0].reset();
                     utils::Log(ex.what(), utils::ELogLevel::Warning);
                 }
             }
@@ -128,9 +127,9 @@ CMesh::CMesh(const std::string &path)
                 std::string fullPath = basePath + texturePath.C_Str();
                 std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
                 try {
-                    _normalMaps[m].reset(new CTexture(fullPath));
+                    _materials[m]._textures[1].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
-                    _normalMaps[m].reset();
+                    _materials[m]._textures[1].reset();
                     utils::Log(ex.what(), utils::ELogLevel::Warning);
                 }
             }
@@ -197,23 +196,17 @@ void CMesh::Render()
 {
     for (size_t i = 0; i < _vao.size(); ++i)
     {
-        const unsigned int materialIndex = _nodes[i].materialIndex;
+        const auto &textures = _materials[_nodes[i].materialIndex]._textures;
 
-        // Bind our normal texture in Texture Unit 1
-        glActiveTexture(GL_TEXTURE1);
-        if (materialIndex < _normalMaps.size() && _normalMaps[materialIndex]) {
-            _normalMaps[materialIndex]->bind();
+        for (unsigned i = 0; i < textures.size(); ++i)
+        {
+            if (textures[i])
+            {
+                glActiveTexture(GL_TEXTURE0 + i);
+                textures[i]->bind();
+            }
         }
-        // Set our "NormalTextureSampler" sampler to user Texture Unit 1
-        glUniform1i(6, 1); // @TODO
-
-        // Bind our diffuse texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
-        if (materialIndex < _textures.size() && _textures[materialIndex]) {
-            _textures[materialIndex]->bind();
-        }
-        // Set our "DiffuseTextureSampler" sampler to user Texture Unit 0
-        glUniform1i(5, 0); // @TODO
 
         // Using VAO for rendering
         glBindVertexArray(_vao[i]);

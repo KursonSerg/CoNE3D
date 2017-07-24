@@ -96,6 +96,47 @@ void CProgram::Validate()
     Check(GL_VALIDATE_STATUS);
 }
 
+void CProgram::LoadUniforms()
+{
+    Use();
+
+    GLint count;
+    glGetProgramiv(_programId, GL_ACTIVE_UNIFORMS, &count);
+
+    std::stringstream log_stream;
+    log_stream << "Active uniforms: " << count << std::endl;
+    for (GLint i = 0, unit = 0; i < count; ++i)
+    {
+        GLint size;
+        GLenum type;
+
+        const GLsizei maxLength = 64;
+        GLchar name[maxLength];
+        GLsizei length;
+
+        glGetActiveUniform(_programId, static_cast<GLuint>(i), maxLength, &length, &size, &type, name);
+
+        switch (type) {
+        case GL_SAMPLER_1D:
+        case GL_SAMPLER_2D:
+        case GL_SAMPLER_3D:
+        case GL_SAMPLER_CUBE:
+        case GL_SAMPLER_1D_SHADOW:
+        case GL_SAMPLER_2D_SHADOW:
+            // Set all texture samplers to texture units in order of declaration
+            glUniform1i(i, unit++);
+            break;
+        }
+
+        log_stream << "Uniform #" << i << ": " << name << " (Type: 0x"
+                   << std::hex << std::uppercase << type
+                   << std::nouppercase << std::dec << ")" << std::endl;
+    }
+    utils::Log( log_stream.str(), utils::ELogLevel::Debug );
+
+    Unuse();
+}
+
 void CProgram::Check(GLenum status)
 {
     GLint result        = GL_FALSE;
@@ -120,26 +161,16 @@ void CProgram::Check(GLenum status)
     utils::checkErrorStatus();
 }
 
-void CProgram::BindAttrib(GLuint index, const GLchar *name)
-{
-    glBindAttribLocation(_programId, index, name);
-}
-
-void CProgram::BindAttrib(AttribInfo attribs)
-{
-    for (const auto &attrib : attribs)
-        BindAttrib(attrib.first, attrib.second.c_str());
-}
-
 GLint CProgram::GetAttrib(const GLchar *name) const
 {
     if (!name) {
-        throw std::runtime_error("Attribute name was NULL");
+        utils::Log(L"Attribute name was NULL", utils::ELogLevel::Warning);
+        return -1;
     }
 
     GLint attrib = glGetAttribLocation(_programId, name);
     if (attrib == -1) {
-        throw std::runtime_error(std::string("Program attribute not found: ") + name);
+        utils::Log(utils::CFormat(L"Program attribute '%%' not found") << name, utils::ELogLevel::Warning);
     }
 
     return attrib;
@@ -148,12 +179,13 @@ GLint CProgram::GetAttrib(const GLchar *name) const
 GLint CProgram::GetUniform(const GLchar *name) const
 {
     if (!name) {
-        throw std::runtime_error("Uniform name was NULL");
+        utils::Log(L"Uniform name was NULL", utils::ELogLevel::Warning);
+        return -1;
     }
 
     GLint uniform = glGetUniformLocation(_programId, name);
     if (uniform == -1) {
-        throw std::runtime_error(std::string("Program uniform not found: ") + name);
+        utils::Log(utils::CFormat(L"Program uniform '%%' not found") << name, utils::ELogLevel::Warning);
     }
 
     return uniform;
