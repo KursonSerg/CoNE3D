@@ -13,9 +13,9 @@ in vec3 EyeDirection_tangentspace;
 out vec3 color;
 
 // Values that stay constant for the whole mesh.
-uniform sampler2D DiffuseTextureSampler;
-uniform sampler2D NormalTextureSampler;
-//uniform sampler2D SpecularTextureSampler;
+uniform sampler2D sDiffuseMap;
+uniform sampler2D sNormalMap;
+//uniform sampler2D sSpecularMap;
 uniform vec3 LightPosition_worldspace;
 
 void main()
@@ -26,12 +26,12 @@ void main()
 	float LightPower = 40.0;
 
 	// Material properties
-	vec3 MaterialDiffuseColor = texture(DiffuseTextureSampler, UV).rgb;
+	vec3 MaterialDiffuseColor = texture(sDiffuseMap, UV).rgb;
 	vec3 MaterialAmbientColor = vec3(0.1, 0.1, 0.1) * MaterialDiffuseColor;
-	vec3 MaterialSpecularColor = vec3(0.3, 0.3, 0.3); //texture(SpecularTextureSampler, UV).rgb * 0.3;
+	vec3 MaterialSpecularColor = vec3(0.3, 0.3, 0.3); //texture(sSpecularMap, UV).rgb * 0.3;
 
 	// Local normal, in tangent space
-	vec3 TextureNormal_tangentspace = normalize(texture(NormalTextureSampler, UV).rgb * 2.0 - 1.0);
+	vec3 TextureNormal_tangentspace = normalize(texture(sNormalMap, UV).rgb * 2.0 - 1.0);
 
 	// Distance to the light
 	float distance = length(LightPosition_worldspace - Position_worldspace);
@@ -40,7 +40,7 @@ void main()
 	vec3 n = TextureNormal_tangentspace;
 	// Direction of the light (from the fragment to the light)
 	vec3 l = LightDirection_tangentspace;
-	// Cosine of the angle between the normal and the light direction, 
+	// Cosine of the angle between the normal and the light direction,
 	// clamped above 0
 	//	- light is at the vertical of the triangle -> 1
 	//	- light is perpendicular to the triangle -> 0
@@ -57,7 +57,7 @@ void main()
 	//	- Looking elsewhere -> < 1
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
 
-	color = 
+	color =
 		// Ambient : simulates indirect lighting
 		MaterialAmbientColor +
 		// Diffuse : "color" of the object

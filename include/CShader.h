@@ -1,7 +1,7 @@
 #ifndef C_SHADER_H
 #define C_SHADER_H
 
-#include <map>
+#include <unordered_map>
 
 #include <Common.h>
 
@@ -14,6 +14,17 @@ enum class EShaderType {
     TessellationEvaluation = GL_TESS_EVALUATION_SHADER
 };
 
+enum ETextureUnit
+{
+    TU_DIFFUSE = 0,
+    TU_NORMAL = 1,
+    TU_SPECULAR = 2,
+    TU_EMISSIVE = 3,
+    TU_ENVIRONMENT = 4,
+
+    MAX_TEXTURE_UNITS
+};
+
 class CShader
 {
 public:
@@ -24,7 +35,6 @@ public:
 
 private:
     GLuint _shaderId;
-
     void Check(GLenum status);
 
     friend class CProgram;
@@ -41,15 +51,17 @@ public:
     void Use();
     void Unuse();
     void Validate();
-    void LoadUniforms(); // TODO: Add semantic parsing
+    void LoadUniforms();
 
     GLint GetAttrib(const GLchar *name) const;
     GLint GetUniform(const GLchar *name) const;
 
 private:
     GLuint _programId;
-
     void Check(GLenum status);
+
+    static const std::unordered_map<std::string, ETextureUnit> _textureUnits;
+    static ETextureUnit GetTextureUnit(const std::string &name);
 };
 
 #endif // C_SHADER_H

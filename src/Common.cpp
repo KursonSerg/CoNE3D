@@ -1,7 +1,7 @@
 #include <Common.h>
 #include <CLogger.h>
 
-#include <map>
+#include <unordered_map>
 
 namespace utils {
 std::string getBasePath(const std::string &path)
@@ -57,7 +57,7 @@ size_t LoadFile(const std::string &filename, bool binary, std::string &buffer)
     return buffer.size();
 }
 
-static const std::map<GLenum, std::string> stringsByEnums =
+static const std::unordered_map<GLenum, std::string> stringsByEnums =
 {
     { GL_NO_ERROR, "no error" },
     { GL_INVALID_ENUM, "invalid enum" },

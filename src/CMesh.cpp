@@ -111,9 +111,9 @@ CMesh::CMesh(const std::string &path)
                 std::string fullPath = basePath + texturePath.C_Str();
                 std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
                 try {
-                    _materials[m]._textures[0].reset(new CTexture(fullPath)); // FIXME: Add enum for texture types
+                    _materials[m]._textures[TU_DIFFUSE].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
-                    _materials[m]._textures[0].reset();
+                    _materials[m]._textures[TU_DIFFUSE].reset();
                     utils::Log(ex.what(), utils::ELogLevel::Warning);
                 }
             }
@@ -127,9 +127,9 @@ CMesh::CMesh(const std::string &path)
                 std::string fullPath = basePath + texturePath.C_Str();
                 std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
                 try {
-                    _materials[m]._textures[1].reset(new CTexture(fullPath));
+                    _materials[m]._textures[TU_NORMAL].reset(new CTexture(fullPath));
                 } catch (const std::exception &ex) {
-                    _materials[m]._textures[1].reset();
+                    _materials[m]._textures[TU_NORMAL].reset();
                     utils::Log(ex.what(), utils::ELogLevel::Warning);
                 }
             }

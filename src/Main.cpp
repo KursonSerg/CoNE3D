@@ -109,13 +109,14 @@ void CWindowTest::Render()
         {
             glm::vec3 lightPos = glm::vec3(4.0f, 4.0f, 4.0f);
             glUniform3f(current.GetUniform("LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+
+            glUniformMatrix4fv(current.GetUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(current.GetUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
+            glUniformMatrix3fv(current.GetUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.view() * model)));
         }
 
         // Set model & view & projection matrix in shader
-        glUniformMatrix4fv(current.GetUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(current.GetUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
         glUniformMatrix4fv(current.GetUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
-        glUniformMatrix3fv(current.GetUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.view() * model)));
 
         _mesh.Render();
     }

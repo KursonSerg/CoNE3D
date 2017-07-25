@@ -39,7 +39,7 @@ struct SMaterial
     {
     }
 
-    std::array<std::unique_ptr<CTexture>, 2> _textures;
+    std::array<std::unique_ptr<CTexture>, MAX_TEXTURE_UNITS> _textures;
 };
 
 class CMesh

@@ -1,7 +1,13 @@
 #include <CShader.h>
 #include <CLogger.h>
 
-#include <vector>
+const std::unordered_map<std::string, ETextureUnit> CProgram::_textureUnits = {
+    { "DiffuseMap", TU_DIFFUSE },
+    { "NormalMap", TU_NORMAL },
+    { "SpecularMap", TU_SPECULAR },
+    { "EmissiveMap", TU_EMISSIVE },
+    { "EnvironmentMap", TU_ENVIRONMENT }
+};
 
 CShader::CShader(EShaderType shaderType, const std::string &shaderPath) :
     _shaderId(0)
@@ -104,37 +110,42 @@ void CProgram::LoadUniforms()
     glGetProgramiv(_programId, GL_ACTIVE_UNIFORMS, &count);
 
     std::stringstream log_stream;
-    log_stream << "Active uniforms: " << count << std::endl;
-    for (GLint i = 0, unit = 0; i < count; ++i)
+    log_stream << "Active uniforms: " << count;
+    for (GLint i = 0; i < count; ++i)
     {
         GLint size;
         GLenum type;
 
-        const GLsizei maxLength = 64;
-        GLchar name[maxLength];
+        const GLsizei MAX_LENGTH = 256;
+        GLchar name[MAX_LENGTH];
         GLsizei length;
 
-        glGetActiveUniform(_programId, static_cast<GLuint>(i), maxLength, &length, &size, &type, name);
+        glGetActiveUniform(_programId, static_cast<GLuint>(i), MAX_LENGTH, &length, &size, &type, name);
+        GLint location = glGetUniformLocation(_programId, name);
 
-        switch (type) {
-        case GL_SAMPLER_1D:
-        case GL_SAMPLER_2D:
-        case GL_SAMPLER_3D:
-        case GL_SAMPLER_CUBE:
-        case GL_SAMPLER_1D_SHADOW:
-        case GL_SAMPLER_2D_SHADOW:
-            // Set all texture samplers to texture units in order of declaration
-            glUniform1i(i, unit++);
-            break;
+        if (location >= 0 && name[0] == 's')
+        {
+            // Set all samplers to texture units
+            ETextureUnit unit = GetTextureUnit(std::string(name).substr(1));
+            glUniform1i(location, unit);
         }
 
-        log_stream << "Uniform #" << i << ": " << name << " (Type: 0x"
+        log_stream << std::endl << "Uniform #" << i << ": " << name << " (Type: 0x"
                    << std::hex << std::uppercase << type
-                   << std::nouppercase << std::dec << ")" << std::endl;
+                   << std::nouppercase << std::dec << ")";
     }
     utils::Log( log_stream.str(), utils::ELogLevel::Debug );
 
     Unuse();
+}
+
+ETextureUnit CProgram::GetTextureUnit(const std::string &name)
+{
+    auto it = _textureUnits.find(name);
+    if (it != _textureUnits.end())
+        return it->second;
+    else
+        return MAX_TEXTURE_UNITS;
 }
 
 void CProgram::Check(GLenum status)
