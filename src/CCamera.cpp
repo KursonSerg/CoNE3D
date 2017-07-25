@@ -57,7 +57,7 @@ void CCamera::updateOrientation()
     _forward = glm::vec3(glm::inverse(orientation) * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f));
     _right = glm::vec3(glm::inverse(orientation) * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     _up = glm::vec3(glm::inverse(orientation) * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    // _up = glm::cross(_right, _direction);
+    // _up = glm::cross(_right, _forward);
 
     updateViewMatrix();
 }

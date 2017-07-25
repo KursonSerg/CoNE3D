@@ -16,14 +16,15 @@ out vec3 color;
 uniform sampler2D sDiffuseMap;
 uniform sampler2D sNormalMap;
 //uniform sampler2D sSpecularMap;
+
 uniform vec3 LightPosition_worldspace;
+uniform float LightPower;
 
 void main()
 {
 	// Light emission properties
 	// You probably want to put them as uniforms
 	vec3 LightColor = vec3(1.0, 1.0, 1.0);
-	float LightPower = 40.0;
 
 	// Material properties
 	vec3 MaterialDiffuseColor = texture(sDiffuseMap, UV).rgb;

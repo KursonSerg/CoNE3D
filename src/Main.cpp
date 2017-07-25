@@ -107,8 +107,8 @@ void CWindowTest::Render()
 
         if (useLight)
         {
-            glm::vec3 lightPos = glm::vec3(4.0f, 4.0f, 4.0f);
-            glUniform3f(current.GetUniform("LightPosition_worldspace"), lightPos.x, lightPos.y, lightPos.z);
+            glUniform3fv(current.GetUniform("LightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
+            glUniform1f(current.GetUniform("LightPower"), 40.0f);
 
             glUniformMatrix4fv(current.GetUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(current.GetUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));

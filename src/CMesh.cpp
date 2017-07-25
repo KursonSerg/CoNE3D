@@ -119,10 +119,12 @@ CMesh::CMesh(const std::string &path)
             }
         }
 
-        if (material->GetTextureCount(aiTextureType_NORMALS) > 0)
+        if (material->GetTextureCount(aiTextureType_NORMALS) > 0 ||
+            material->GetTextureCount(aiTextureType_HEIGHT) > 0)
         {
             aiString texturePath;
-            if (material->GetTexture(aiTextureType_NORMALS, channel, &texturePath) == AI_SUCCESS)
+            if (material->GetTexture(aiTextureType_NORMALS, channel, &texturePath) == AI_SUCCESS ||
+                material->GetTexture(aiTextureType_HEIGHT, channel, &texturePath) == AI_SUCCESS)
             {
                 std::string fullPath = basePath + texturePath.C_Str();
                 std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
