@@ -84,7 +84,7 @@ set(INCS include/Common.h
          include/CWindow.h
          include/CShader.h
          include/CObject.h
-         include/CMesh.h
+         include/CModel.h
          include/CCamera.h
          include/CTexture.h)
 
@@ -96,7 +96,7 @@ set(SRCS src/Main.cpp
          src/CWindow.cpp
          src/CShader.cpp
          src/CObject.cpp
-         src/CMesh.cpp
+         src/CModel.cpp
          src/CCamera.cpp
          src/CTexture.cpp)
 

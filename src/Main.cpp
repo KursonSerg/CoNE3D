@@ -1,7 +1,7 @@
 #include <Version.h>
 #include <CWindow.h>
 #include <CLogger.h>
-#include <CMesh.h>
+#include <CModel.h>
 #include <CCamera.h>
 
 class CWindowTest : public CWindow
@@ -10,7 +10,7 @@ public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
         , _camera(glm::vec3(5.0f, 4.0f, 4.0f), glm::vec3(0.0f, 2.0f, 0.0f))
-        , _mesh("assets/hulk/hulk.obj")
+        , _model("assets/hulk/hulk.obj")
         , _angle(0.0f)
         , _speed(45.0f)
         , _movementDirection(EDirection::No)
@@ -51,7 +51,7 @@ private:
     CCamera  _camera;
     CProgram _simple;
     CProgram _shading;
-    CMesh    _mesh;
+    CModel    _model;
 
     float _angle;
     float _speed;
@@ -118,24 +118,8 @@ void CWindowTest::Render()
         // Set model & view & projection matrix in shader
         glUniformMatrix4fv(current.GetUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
 
-        _mesh.Render();
+        _model.Render();
     }
-
-#if 0
-    {
-        glm::mat4 model = glm::translate( glm::mat4(1.0f), glm::vec3(3.0f, 2.0f, 0.0f) );
-        model = glm::rotate( model, glm::radians(_angle), glm::vec3(1.0f, 0.0f, 0.0f) );
-        model = glm::scale( model, glm::vec3(0.75f, 0.75f, 0.75f) );
-        _cubeMesh.Render(_camera.viewProjection() * model);
-    }
-
-    {
-        glm::mat4 model = glm::translate( glm::mat4(1.0f), glm::vec3(-3.0f, -2.0f, 0.0f) );
-        model = glm::rotate( model, glm::radians(_angle), glm::vec3(0.0f, 0.0f, 1.0f) );
-        model = glm::scale( model, glm::vec3(0.75f, 0.75f, 0.75f) );
-        _cubeMesh.Render(_camera.viewProjection() * model);
-    }
-#endif
 
     current.Unuse();
 

@@ -1,4 +1,4 @@
-#include <CMesh.h>
+#include <CModel.h>
 
 #include <numeric>
 #include <type_traits>
@@ -17,7 +17,7 @@ static_assert(sizeof(SVertex) / sizeof(float) == constexpr_accumulate(SVertex::o
 
 const unsigned int channel = 0; // TODO
 
-CMesh::CMesh(const std::string &path)
+CModel::CModel(const std::string &path)
 {
     std::string basePath( utils::getBasePath(path) );
 
@@ -101,15 +101,14 @@ CMesh::CMesh(const std::string &path)
     glBindVertexArray(0);
 }
 
-CMesh::~CMesh()
+CModel::~CModel()
 {
 }
 
-void CMesh::ProcessNode(const aiScene* scene, const aiNode *node)
+void CModel::ProcessNode(const aiScene* scene, const aiNode *node)
 {
     // Loop through all meshes in a scene
-    for (unsigned int m = 0; m < node->mNumMeshes; ++m)
-    {
+    for (unsigned int m = 0; m < node->mNumMeshes; ++m) {
         ProcessMesh(scene->mMeshes[node->mMeshes[m]], _meshes[node->mMeshes[m]]);
     }
 
@@ -118,7 +117,7 @@ void CMesh::ProcessNode(const aiScene* scene, const aiNode *node)
     }
 }
 
-void CMesh::ProcessMesh(const aiMesh *mesh, SMesh &processedMesh)
+void CModel::ProcessMesh(const aiMesh *mesh, SMesh &processedMesh)
 {
 #ifndef NDEBUG
     // Calc size to reserve vertex vector
@@ -162,7 +161,7 @@ void CMesh::ProcessMesh(const aiMesh *mesh, SMesh &processedMesh)
     }
 }
 
-void CMesh::Render()
+void CModel::Render()
 {
     for (size_t i = 0; i < _vao.size(); ++i)
     {

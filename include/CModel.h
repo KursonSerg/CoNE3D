@@ -1,5 +1,5 @@
-#ifndef CMESH_H
-#define CMESH_H
+#ifndef CMODEL_H
+#define CMODEL_H
 
 #include <array>
 #include <vector>
@@ -51,11 +51,11 @@ struct SMaterial
     std::array<std::unique_ptr<CTexture>, MAX_TEXTURE_UNITS> _textures;
 };
 
-class CMesh
+class CModel
 {
 public:
-    CMesh(const std::string &path);
-    ~CMesh();
+    CModel(const std::string &path);
+    ~CModel();
 
     void ProcessNode(const aiScene *scene, const aiNode *node);
     void ProcessMesh(const aiMesh *mesh, SMesh &processedMesh);
@@ -75,4 +75,4 @@ private:
     std::vector<CIndexBuffer> _ibo;
 };
 
-#endif // CMESH_H
+#endif // CMODEL_H
