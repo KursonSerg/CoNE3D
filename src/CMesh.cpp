@@ -3,10 +3,6 @@
 #include <numeric>
 #include <type_traits>
 
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
-
 #include <CLogger.h>
 
 template <typename T, std::size_t N>
@@ -19,8 +15,9 @@ constexpr std::array<unsigned, SVertex::n> SVertex::offsets;
 static_assert(std::is_standard_layout<SVertex>::value, "not a standard layout");
 static_assert(sizeof(SVertex) / sizeof(float) == constexpr_accumulate(SVertex::offsets), "not matching offset layout");
 
+const unsigned int channel = 0; // TODO
+
 CMesh::CMesh(const std::string &path)
-    : _ibo(0)
 {
     std::string basePath( utils::getBasePath(path) );
 
@@ -32,71 +29,14 @@ CMesh::CMesh(const std::string &path)
         throw std::runtime_error( utils::ws2s(utils::CFormat(L"Failed to load scene '%%' with error: %%")
                                               << path << importer.GetErrorString()) );
 
-    _nodes.resize(scene->mNumMeshes);
+    _meshes.resize(scene->mNumMeshes);
     _materials.resize(scene->mNumMaterials);
 
-    const unsigned int channel = 0;
-
-    // Loop through all meshes in a scene
-    for (unsigned int m = 0; m < scene->mNumMeshes; ++m)
-    {
-        const struct aiMesh* mesh = scene->mMeshes[m];
+    ProcessNode(scene, scene->mRootNode);
 
 #ifndef NDEBUG
-        // Calc size to reserve vertex vector
-        unsigned int vertexCount = 0;
-        for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
-            vertexCount += mesh->mFaces[f].mNumIndices;
-        assert(vertexCount == mesh->mNumFaces * 3);
-#endif
-        // Indices number in a face is always 3, because we triangulate scene
-        _nodes[m].mesh.reserve(mesh->mNumFaces * 3);
-        _nodes[m].materialIndex = mesh->mMaterialIndex;
-
-        for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
-        {
-            const struct aiFace* face = &mesh->mFaces[f];
-            for (unsigned int i = 0; i < face->mNumIndices; ++i)
-            {
-                unsigned int index = face->mIndices[i];
-
-                SVertex vertex;
-                vertex.position.x = mesh->mVertices[index].x;
-                vertex.position.y = mesh->mVertices[index].y;
-                vertex.position.z = mesh->mVertices[index].z;
-
-                if (mesh->HasTextureCoords(channel))
-                {
-                    vertex.uv.x = mesh->mTextureCoords[channel][index].x;
-                    vertex.uv.y = mesh->mTextureCoords[channel][index].y;
-                }
-
-                if (mesh->HasNormals())
-                {
-                    vertex.normal.x = mesh->mNormals[index].x;
-                    vertex.normal.y = mesh->mNormals[index].y;
-                    vertex.normal.z = mesh->mNormals[index].z;
-                }
-
-                if (mesh->HasTangentsAndBitangents())
-                {
-                    vertex.tangent.x = mesh->mTangents[index].x;
-                    vertex.tangent.y = mesh->mTangents[index].y;
-                    vertex.tangent.z = mesh->mTangents[index].z;
-
-                    vertex.bitangent.x = mesh->mBitangents[index].x;
-                    vertex.bitangent.y = mesh->mBitangents[index].y;
-                    vertex.bitangent.z = mesh->mBitangents[index].z;
-                }
-
-                _nodes[m].mesh.emplace_back(vertex);
-            }
-        }
-    }
-
-#ifndef NDEBUG
-    for (size_t i = 0; i < _nodes.size(); ++i)
-        assert(_nodes[i].mesh.size() == _nodes[i].mesh.capacity());
+    for (size_t i = 0; i < _meshes.size(); ++i)
+        assert(_meshes[i].vertices.size() == _meshes[i].vertices.capacity());
 #endif
 
     // Get diffuse texture filenames
@@ -138,87 +78,110 @@ CMesh::CMesh(const std::string &path)
         }
     }
 
-    _vao.resize(_nodes.size());
-    _vbo.resize(_nodes.size());
+    _vao.resize(_meshes.size());
+    _vbo.resize(_meshes.size());
+    _ibo.resize(_meshes.size());
 
-    // Create a Vertex Array Object (VAO)
-    glGenVertexArrays(_vao.size(), _vao.data());
-    // Create a Vertex Buffer Object (VBO)
-    glGenBuffers(_vbo.size(), _vbo.data());
-
-#if 0
-    glGenBuffers(1, &_ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-
-    // Fill IBO with indices
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeElements.size() * sizeof(GLushort), cubeElements.data(), GL_STATIC_DRAW);
-#endif
-
-    for (size_t i = 0; i < _nodes.size(); ++i)
+    for (size_t i = 0; i < _meshes.size(); ++i)
     {
-        // Set VAO as the current one
-        glBindVertexArray(_vao[i]);
-        // Set VBO as the current one
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo[i]);
+        _vao[i].bind();
 
-        // Fill VBO with vertices
-        glBufferData(GL_ARRAY_BUFFER, _nodes[i].mesh.size() * sizeof(SVertex), _nodes[i].mesh.data(), GL_STATIC_DRAW);
+        _vbo[i].bind();
+        _vbo[i].updateData(_meshes[i].vertices.size() * sizeof(SVertex), _meshes[i].vertices.data(), GL_STATIC_DRAW);
 
-        const auto &offsets = SVertex::offsets;
-
-        unsigned currentOffset = 0u;
-        unsigned vertexSize = std::accumulate(offsets.begin(), offsets.end(), 0u) * sizeof(GLfloat);
-        for (unsigned i = 0; i < offsets.size(); ++i)
+        for (unsigned j = 0, offset = 0; j < SVertex::offsets.size(); ++j)
         {
-            // Set access parameters to VBO
-            glVertexAttribPointer(i, offsets[i], GL_FLOAT, GL_FALSE, vertexSize, BUFFER_OFFSET(currentOffset));
-            // Enable using of attribute
-            glEnableVertexAttribArray(i);
-            currentOffset += offsets[i] * sizeof(GLfloat);
+            _vbo[i].updateAttrib(j, SVertex::offsets[j], sizeof(SVertex), offset);
+            offset += SVertex::offsets[j] * sizeof(GLfloat);
         }
+
+        _ibo[i].bind();
+        _ibo[i].updateData(_meshes[i].indices.size() * sizeof(glm::uvec3), _meshes[i].indices.data(), GL_STATIC_DRAW);
     }
     glBindVertexArray(0);
 }
 
 CMesh::~CMesh()
 {
-#if 0
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &_ibo);
+}
+
+void CMesh::ProcessNode(const aiScene* scene, const aiNode *node)
+{
+    // Loop through all meshes in a scene
+    for (unsigned int m = 0; m < node->mNumMeshes; ++m)
+    {
+        ProcessMesh(scene->mMeshes[node->mMeshes[m]], _meshes[node->mMeshes[m]]);
+    }
+
+    for (unsigned int c = 0; c < node->mNumChildren; ++c) {
+        ProcessNode(scene, node->mChildren[c]);
+    }
+}
+
+void CMesh::ProcessMesh(const aiMesh *mesh, SMesh &processedMesh)
+{
+#ifndef NDEBUG
+    // Calc size to reserve vertex vector
+    unsigned int vertexCount = 0;
+    for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
+        vertexCount += mesh->mFaces[f].mNumIndices;
+    assert(vertexCount == mesh->mNumFaces * 3);
 #endif
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(_vbo.size(), _vbo.data());
+    processedMesh.vertices.reserve(mesh->mNumVertices);
+    processedMesh.indices.reserve(mesh->mNumFaces);
+    processedMesh.materialIndex = mesh->mMaterialIndex;
 
-    glBindVertexArray(0);
-    glDeleteVertexArrays(_vao.size(), _vao.data());
+    for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
+    {
+        SVertex vertex;
+        vertex.position = to_vec(mesh->mVertices[v]);
+
+        if (mesh->HasTextureCoords(channel)) {
+            vertex.uv.x = mesh->mTextureCoords[channel][v].x;
+            vertex.uv.y = mesh->mTextureCoords[channel][v].y;
+        }
+
+        if (mesh->HasNormals()) {
+            vertex.normal = to_vec(mesh->mNormals[v]);
+        }
+
+        if (mesh->HasTangentsAndBitangents()) {
+            vertex.tangent = to_vec(mesh->mTangents[v]);
+            vertex.bitangent = to_vec(mesh->mBitangents[v]);
+        }
+
+        processedMesh.vertices.emplace_back(vertex);
+    }
+
+    for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
+    {
+        const aiFace *face = &mesh->mFaces[f];
+        assert(face->mNumIndices == 3); // Faces have 3 indices, because meshes are triangulated
+        processedMesh.indices.emplace_back(face->mIndices[0], face->mIndices[1], face->mIndices[2]);
+    }
 }
 
 void CMesh::Render()
 {
     for (size_t i = 0; i < _vao.size(); ++i)
     {
-        const auto &textures = _materials[_nodes[i].materialIndex]._textures;
+        const auto &textures = _materials[_meshes[i].materialIndex]._textures;
 
-        for (unsigned i = 0; i < textures.size(); ++i)
+        for (unsigned j = 0; j < textures.size(); ++j)
         {
-            if (textures[i])
+            if (textures[j])
             {
-                glActiveTexture(GL_TEXTURE0 + i);
-                textures[i]->bind();
+                glActiveTexture(GL_TEXTURE0 + j);
+                textures[j]->bind();
             }
         }
         glActiveTexture(GL_TEXTURE0);
 
         // Using VAO for rendering
-        glBindVertexArray(_vao[i]);
+        _vao[i].bind();
         // Render vertices in VBO binded to VAO
-        glDrawArrays(GL_TRIANGLES, 0, _nodes[i].mesh.size());
-
-#if 0
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-        glDrawElements(GL_TRIANGLES, cubeElements.size(), GL_UNSIGNED_SHORT, 0);
-#endif
+        glDrawElements(GL_TRIANGLES, _meshes[i].indices.size() * sizeof(glm::uvec3), GL_UNSIGNED_INT, nullptr);
     }
     glBindVertexArray(0);
 }

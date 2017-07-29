@@ -10,6 +10,14 @@
 #include <CTexture.h>
 #include <CShader.h>
 
+#include <Objects/VertexArray.h>
+#include <Objects/VertexBuffer.h>
+#include <Objects/IndexBuffer.h>
+
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+
 struct SVertex
 {
     glm::vec3 position;
@@ -29,7 +37,8 @@ struct SMesh
     {
     }
 
-    std::vector<SVertex> mesh;
+    std::vector<SVertex> vertices;
+    std::vector<glm::uvec3> indices;
     unsigned int materialIndex;
 };
 
@@ -48,15 +57,22 @@ public:
     CMesh(const std::string &path);
     ~CMesh();
 
+    void ProcessNode(const aiScene *scene, const aiNode *node);
+    void ProcessMesh(const aiMesh *mesh, SMesh &processedMesh);
+
     void Render();
 
 private:
-    std::vector<SMesh> _nodes;
+    glm::vec3 to_vec(const aiVector3D &vec) {
+        return glm::vec3(vec.x, vec.y, vec.z);
+    }
+
+    std::vector<SMesh> _meshes;
     std::vector<SMaterial> _materials;
 
-    std::vector<GLuint> _vao;
-    std::vector<GLuint> _vbo;
-    GLuint _ibo;
+    std::vector<CVertexArray> _vao;
+    std::vector<CVertexBuffer> _vbo;
+    std::vector<CIndexBuffer> _ibo;
 };
 
 #endif // CMESH_H

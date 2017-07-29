@@ -65,6 +65,18 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/deps/assimp")
 # Add stb libraries collection (include only)
 include_directories("${PROJECT_SOURCE_DIR}/deps/stb")
 
+set(OBJ include/Objects/IndexBuffer.h
+        include/Objects/VertexArray.h
+        include/Objects/VertexBuffer.h
+        src/Objects/IndexBuffer.cpp
+        src/Objects/VertexArray.cpp
+        src/Objects/VertexBuffer.cpp)
+
+set(DRAW include/Drawables/Drawable.h
+         include/Drawables/IndexedDrawable.h
+         src/Drawables/Drawable.cpp
+         src/Drawables/IndexedDrawable.cpp)
+
 # List includes
 set(INCS include/Common.h
          include/CFormat.h
@@ -103,7 +115,7 @@ endif()
 
 # Add the executable
 include_directories("${PROJECT_SOURCE_DIR}/include")
-add_executable(${PROJECT_NAME} ${INCS} ${SRCS})
+add_executable(${PROJECT_NAME} ${INCS} ${SRCS} ${OBJ} ${DRAW})
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} glfw glad assimp OpenGL32)
 else()
