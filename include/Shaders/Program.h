@@ -30,6 +30,7 @@ public:
 
     void loadShaders(const std::string &filename);
     void loadUniforms();
+    void loadUniformBlocks();
 
     GLint getAttrib(const GLchar *name) const;
     GLint getUniform(const GLchar *name) const;

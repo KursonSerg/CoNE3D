@@ -25,6 +25,7 @@ public:
         _simple.loadShaders("assets/simple.glsl");
         _shading.loadShaders("assets/normal_mapping.glsl");
         _shading.loadUniforms();
+        _shading.loadUniformBlocks();
     }
 
     virtual ~CWindowTest()

@@ -24,6 +24,13 @@ uniform mat4 M;
 uniform mat3 MV3x3;
 uniform vec3 LightPosition_worldspace;
 
+layout(std140) uniform shader_data
+{ 
+	vec4 camera_position;
+	vec4 light_position;
+	vec4 light_diffuse;
+};
+
 void main()
 {
 	// Output position of the vertex, in clip space : MVP * position

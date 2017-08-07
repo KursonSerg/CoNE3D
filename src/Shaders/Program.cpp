@@ -80,8 +80,35 @@ void CProgram::loadUniforms()
         }
 
         logStream << std::endl << "Uniform #" << i << ": " << name << " (Type: 0x"
-                   << std::hex << std::uppercase << type
-                   << std::nouppercase << std::dec << ")";
+                  << std::hex << std::uppercase << type
+                  << std::nouppercase << std::dec << ")";
+    }
+    utils::Log( logStream.str(), utils::ELogLevel::Debug );
+
+    unuse();
+}
+
+void CProgram::loadUniformBlocks()
+{
+    use();
+
+    GLint count;
+    glGetProgramiv(_id, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+
+    std::stringstream logStream;
+    logStream << "Active uniforms: " << count;
+    for (GLint i = 0; i < count; ++i)
+    {
+        GLint index;
+        const GLsizei MAX_LENGTH = 256;
+        GLchar name[MAX_LENGTH];
+        GLsizei length;
+
+        glGetActiveUniformBlockName(_id, i, MAX_LENGTH, &length, name);
+        glGetActiveUniformBlockiv(_id, i,  GL_UNIFORM_BLOCK_BINDING, &index);
+
+        logStream << std::endl << "Uniform #" << i << ": " << name
+                  << " (Index: " << index << ")";
     }
     utils::Log( logStream.str(), utils::ELogLevel::Debug );
 
