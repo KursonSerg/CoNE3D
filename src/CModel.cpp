@@ -163,7 +163,7 @@ void CModel::ProcessMesh(const aiMesh *mesh, SMesh &processedMesh)
 
 void CModel::Render()
 {
-    for (size_t i = 0; i < _vao.size(); ++i)
+    for (size_t i = 0; i < _meshes.size(); ++i)
     {
         const auto &textures = _materials[_meshes[i].materialIndex]._textures;
 
@@ -180,7 +180,7 @@ void CModel::Render()
         // Using VAO for rendering
         _vao[i].bind();
         // Render vertices in VBO binded to VAO
-        glDrawElements(GL_TRIANGLES, _meshes[i].indices.size() * sizeof(glm::uvec3), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, _meshes[i].indices.size() * glm::uvec3::length(), GL_UNSIGNED_INT, nullptr);
     }
     glBindVertexArray(0);
 }

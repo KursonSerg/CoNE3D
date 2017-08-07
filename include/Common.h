@@ -16,6 +16,7 @@
 
 namespace utils {
 std::string getBasePath(const std::string &path);
+std::string getFilename(const std::string &path);
 size_t LoadFile(const std::wstring &filename, bool binary, std::wstring &buffer);
 size_t LoadFile(const std::string &filename, bool binary, std::string &buffer);
 

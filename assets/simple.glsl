@@ -1,3 +1,4 @@
+#pragma vertex
 #version 330 core
 
 uniform mat4 MVP;
@@ -11,4 +12,17 @@ void main()
 {
     gl_Position      = MVP * vec4(position, 1.0);
     fragmentTexCoord = texCoord;
+}
+#pragma fragment
+#version 330 core
+
+in vec2 fragmentTexCoord;
+
+out vec4 color;
+
+uniform sampler2D sDiffuseMap;
+
+void main()
+{
+    color = texture(sDiffuseMap, fragmentTexCoord);
 }

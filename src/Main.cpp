@@ -4,6 +4,8 @@
 #include <CModel.h>
 #include <CCamera.h>
 
+#include <Shaders/Program.h>
+
 class CWindowTest : public CWindow
 {
 public:
@@ -20,19 +22,9 @@ public:
         Resize(width, height); // FIXME: Move to another place (but not CWindow constructor)
         Init();
 
-        _simple.AttachShader(CShader(EShaderType::Vertex, "assets/simple.vert"));
-        _simple.AttachShader(CShader(EShaderType::Fragment, "assets/simple.frag"));
-
-        _simple.Link();
-        _simple.Validate();
-
-        _shading.AttachShader(CShader(EShaderType::Vertex, "assets/normal_mapping.vert"));
-        _shading.AttachShader(CShader(EShaderType::Fragment, "assets/normal_mapping.frag"));
-
-        _shading.Link();
-        _shading.Validate();
-
-        _shading.LoadUniforms();
+        _simple.loadShaders("assets/simple.glsl");
+        _shading.loadShaders("assets/normal_mapping.glsl");
+        _shading.loadUniforms();
     }
 
     virtual ~CWindowTest()
@@ -51,7 +43,7 @@ private:
     CCamera  _camera;
     CProgram _simple;
     CProgram _shading;
-    CModel    _model;
+    CModel   _model;
 
     float _angle;
     float _speed;
@@ -99,7 +91,7 @@ void CWindowTest::Render()
     // Set shader program as the active one
     CProgram &current = useLight ? _shading : _simple;
 
-    current.Use();
+    current.use();
 
     {
         // Model matrix: Scale * Rotation * Translation
@@ -107,21 +99,21 @@ void CWindowTest::Render()
 
         if (useLight)
         {
-            glUniform3fv(current.GetUniform("LightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
-            glUniform1f(current.GetUniform("LightPower"), 40.0f);
+            glUniform3fv(current.getUniform("LightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
+            glUniform1f(current.getUniform("LightPower"), 40.0f);
 
-            glUniformMatrix4fv(current.GetUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
-            glUniformMatrix4fv(current.GetUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
-            glUniformMatrix3fv(current.GetUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.view() * model)));
+            glUniformMatrix4fv(current.getUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(current.getUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
+            glUniformMatrix3fv(current.getUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.view() * model)));
         }
 
         // Set model & view & projection matrix in shader
-        glUniformMatrix4fv(current.GetUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
+        glUniformMatrix4fv(current.getUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
 
         _model.Render();
     }
 
-    current.Unuse();
+    current.unuse();
 
     CenterMouse();
 

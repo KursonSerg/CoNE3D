@@ -10,6 +10,12 @@ std::string getBasePath(const std::string &path)
     return (std::string::npos == pos) ? "" : path.substr(0, pos + 1);
 }
 
+std::string getFilename(const std::string &path)
+{
+    size_t pos = path.find_last_of("\\/");
+    return (std::string::npos == pos) ? path : path.substr(pos + 1);
+}
+
 // http://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
 size_t LoadFile(const std::wstring &filename, bool binary, std::wstring &buffer)
 {
@@ -25,10 +31,10 @@ size_t LoadFile(const std::wstring &filename, bool binary, std::wstring &buffer)
         in.read( &buffer[0], buffer.size() );
         in.close();
 
-        utils::Log(CFormat(L"File '%%' (size: %% bytes):\n%%")
+        utils::Log(utils::CFormat(L"File '%%' (size: %% bytes):\n%%")
                    << filename << buffer.size() << buffer, utils::ELogLevel::Debug);
     } else {
-        throw std::runtime_error( utils::ws2s(CFormat(L"Failed to open file '%%'") << filename) );
+        throw std::runtime_error( utils::ws2s(utils::CFormat(L"Failed to open file '%%'") << filename) );
     }
 
     return buffer.size();
@@ -48,10 +54,10 @@ size_t LoadFile(const std::string &filename, bool binary, std::string &buffer)
         in.read( &buffer[0], buffer.size() );
         in.close();
 
-        utils::Log(CFormat(L"File '%%' (size: %% bytes):\n%%")
+        utils::Log(utils::CFormat(L"File '%%' (size: %% bytes):\n%%")
                    << filename << buffer.size() << buffer, utils::ELogLevel::Debug);
     } else {
-        throw std::runtime_error( utils::ws2s(CFormat(L"Failed to open file '%%'") << filename) );
+        throw std::runtime_error( utils::ws2s(utils::CFormat(L"Failed to open file '%%'") << filename) );
     }
 
     return buffer.size();
@@ -115,14 +121,11 @@ void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum
     if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
         return;
 
-    CFormat debug_message(L"\n"
-        L"-------------------- OpenGL Message Start --------------------\n"
-        L"Source: %%\nType: %%\nID: %%\nSeverity: %%\nMessage: %%\n"
-        L"--------------------  OpenGL Message End  --------------------");
-
-    debug_message << stringByEnum(source) << stringByEnum(type) << id << stringByEnum(severity)
-                  << std::string(message, static_cast<size_t>(length));
-
-    utils::Log(debug_message, utils::ELogLevel::Debug);
+    utils::Log(utils::CFormat(L"\n"
+                              L"-------------------- OpenGL Message Start --------------------\n"
+                              L"Source: %%\nType: %%\nID: %%\nSeverity: %%\nMessage: %%\n"
+                              L"--------------------  OpenGL Message End  --------------------")
+               << stringByEnum(source) << stringByEnum(type) << id << stringByEnum(severity)
+               << std::string(message, static_cast<size_t>(length)), utils::ELogLevel::Debug);
 }
 } // namespace utils

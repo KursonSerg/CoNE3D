@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <CTexture.h>
-#include <CShader.h>
+#include <Shaders/Program.h> // TODO: remove this
 
 #include <Objects/VertexArray.h>
 #include <Objects/VertexBuffer.h>

@@ -60,6 +60,7 @@ option(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT "Default value for all importers" O
 option(ASSIMP_BUILD_OBJ_IMPORTER "Value for obj importer" ON)
 
 include_directories("${PROJECT_SOURCE_DIR}/deps/assimp/include")
+include_directories("${PROJECT_BINARY_DIR}/deps/assimp/include")
 add_subdirectory("${PROJECT_SOURCE_DIR}/deps/assimp")
 
 # Add stb libraries collection (include only)
@@ -77,12 +78,18 @@ set(DRAW include/Drawables/Drawable.h
          src/Drawables/Drawable.cpp
          src/Drawables/IndexedDrawable.cpp)
 
+set(SHADERS include/Shaders/ShaderParser.h
+            include/Shaders/Shader.h
+            include/Shaders/Program.h
+            src/Shaders/ShaderParser.cpp
+            src/Shaders/Shader.cpp
+            src/Shaders/Program.cpp)
+
 # List includes
 set(INCS include/Common.h
          include/CFormat.h
          include/CLogger.h
          include/CWindow.h
-         include/CShader.h
          include/CObject.h
          include/CModel.h
          include/CCamera.h
@@ -94,7 +101,6 @@ set(SRCS src/Main.cpp
          src/CFormat.cpp
          src/CLogger.cpp
          src/CWindow.cpp
-         src/CShader.cpp
          src/CObject.cpp
          src/CModel.cpp
          src/CCamera.cpp
@@ -115,7 +121,7 @@ endif()
 
 # Add the executable
 include_directories("${PROJECT_SOURCE_DIR}/include")
-add_executable(${PROJECT_NAME} ${INCS} ${SRCS} ${OBJ} ${DRAW})
+add_executable(${PROJECT_NAME} ${INCS} ${SRCS} ${OBJ} ${DRAW} ${SHADERS})
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} glfw glad assimp OpenGL32)
 else()
