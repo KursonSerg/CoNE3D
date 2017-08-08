@@ -15,6 +15,7 @@ CShader::~CShader()
 void CShader::compile(const std::string &source)
 {
     utils::Log(L"Compiling shader...", utils::ELogLevel::Debug);
+    utils::Log(utils::CFormat(L"Shader source:\n%%") << source, utils::ELogLevel::Debug);
 
     const GLchar *sources[] = { source.c_str() };
     const GLint lengths[] = { static_cast<GLint>(source.size()) };

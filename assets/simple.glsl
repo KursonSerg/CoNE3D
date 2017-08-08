@@ -1,7 +1,8 @@
 #pragma vertex
 #version 330 core
+#include Buffers/CameraBuffer.glsl
 
-uniform mat4 MVP;
+uniform mat4 M;
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoord;
@@ -10,7 +11,7 @@ out vec2 fragmentTexCoord;
 
 void main()
 {
-    gl_Position      = MVP * vec4(position, 1.0);
+    gl_Position      = camera.projectionMatrix * camera.viewMatrix * M * vec4(position, 1.0);
     fragmentTexCoord = texCoord;
 }
 #pragma fragment

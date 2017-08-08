@@ -23,9 +23,11 @@ public:
         Init();
 
         _simple.loadShaders("assets/simple.glsl");
-        _shading.loadShaders("assets/normal_mapping.glsl");
-        _shading.loadUniforms();
-        _shading.loadUniformBlocks();
+        _simple.loadUniforms();
+        _simple.loadUniformBlocks();
+//        _shading.loadShaders("assets/normal_mapping.glsl");
+//        _shading.loadUniforms();
+//        _shading.loadUniformBlocks();
     }
 
     virtual ~CWindowTest()
@@ -70,16 +72,16 @@ void CWindowTest::Update(float deltaTime)
 
     const float moveSpeed = 5.0f; // units per second
     if (hasFlag(_movementDirection & EDirection::Forward)) {
-        _camera.offsetPosition(deltaTime * moveSpeed * _camera.forward());
+        _camera.move(deltaTime * moveSpeed * _camera.getDirection());
     }
     else if (hasFlag(_movementDirection & EDirection::Backward)) {
-        _camera.offsetPosition(deltaTime * moveSpeed * -_camera.forward());
+        _camera.move(deltaTime * moveSpeed * -_camera.getDirection());
     }
     if (hasFlag(_movementDirection & EDirection::Right)) {
-        _camera.offsetPosition(deltaTime * moveSpeed * _camera.right());
+        _camera.move(deltaTime * moveSpeed * _camera.getRight());
     }
     else if (hasFlag(_movementDirection & EDirection::Left)) {
-        _camera.offsetPosition(deltaTime * moveSpeed * -_camera.right());
+        _camera.move(deltaTime * moveSpeed * -_camera.getRight());
     }
 }
 
@@ -87,7 +89,7 @@ void CWindowTest::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    bool useLight = true;
+    bool useLight = false;
 
     // Set shader program as the active one
     CProgram &current = useLight ? _shading : _simple;
@@ -104,12 +106,14 @@ void CWindowTest::Render()
             glUniform1f(current.getUniform("LightPower"), 40.0f);
 
             glUniformMatrix4fv(current.getUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
-            glUniformMatrix4fv(current.getUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.view()));
-            glUniformMatrix3fv(current.getUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.view() * model)));
+            glUniformMatrix4fv(current.getUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.getViewMatrix()));
+            glUniformMatrix3fv(current.getUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.getViewMatrix() * model)));
         }
 
         // Set model & view & projection matrix in shader
-        glUniformMatrix4fv(current.getUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
+//        glUniformMatrix4fv(current.getUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
+
+        glUniformMatrix4fv(current.getUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
 
         _model.Render();
     }
@@ -125,7 +129,7 @@ void CWindowTest::Resize(int width, int height)
 {
     utils::Log(utils::CFormat(L"CWindowTest::Resize(%%x%%)") << width << height, utils::ELogLevel::Debug);
 
-    _camera.setViewportAspectRatio( static_cast<float>(_width / _height) );
+    _camera.setAspectRatio( static_cast<float>(_width / _height) );
 
     // Set viewport
     glViewport(0, 0, width, height);
@@ -182,9 +186,12 @@ void CWindowTest::Cursor(float xpos, float ypos)
 {
     // utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%, %%)") << xpos << ypos, utils::ELogLevel::Debug);
 
-    const float mouseSensitivity = 0.01f;
-    _camera.offsetOrientation( (xpos - _width/2.0f) * mouseSensitivity,
-                               (ypos - _height/2.0f) * mouseSensitivity );
+    const float mouseSensitivity = 0.001f;
+    const float rotate_x = _height/2.0f - ypos;
+    const float rotate_y = _width/2.0f - xpos;
+
+    _camera.pitch(rotate_x * mouseSensitivity);
+    _camera.rotate(rotate_y * mouseSensitivity, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 int main(int argc, char *argv[])

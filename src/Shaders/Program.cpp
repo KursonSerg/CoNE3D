@@ -96,19 +96,42 @@ void CProgram::loadUniformBlocks()
     glGetProgramiv(_id, GL_ACTIVE_UNIFORM_BLOCKS, &count);
 
     std::stringstream logStream;
-    logStream << "Active uniforms: " << count;
+    logStream << "Active uniform blocks: " << count;
     for (GLint i = 0; i < count; ++i)
     {
-        GLint index;
+        GLint binding;
         const GLsizei MAX_LENGTH = 256;
         GLchar name[MAX_LENGTH];
         GLsizei length;
 
         glGetActiveUniformBlockName(_id, i, MAX_LENGTH, &length, name);
-        glGetActiveUniformBlockiv(_id, i,  GL_UNIFORM_BLOCK_BINDING, &index);
 
-        logStream << std::endl << "Uniform #" << i << ": " << name
-                  << " (Index: " << index << ")";
+        glUniformBlockBinding(_id, i, i); // TODO: Add semantic parsing for binding
+
+        glGetActiveUniformBlockiv(_id, i,  GL_UNIFORM_BLOCK_BINDING, &binding);
+
+        int size;
+        int numUniforms;
+        GLint indices[3];
+        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
+        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numUniforms);
+        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
+
+        GLint offset[3];
+        glGetActiveUniformsiv(_id, numUniforms, reinterpret_cast<GLuint *>(indices), GL_UNIFORM_OFFSET, offset);
+
+        logStream << std::endl << "Uniform block #" << i << ": " << name
+                  << " (binding: " << binding
+                  << ", size: " << size
+                  << ", uniforms: " << numUniforms << ")";
+
+        for (int j = 0; j < numUniforms; ++j)
+        {
+            glGetActiveUniformName(_id, indices[j], MAX_LENGTH, &length, name);
+            logStream << std::endl << "  Uniform #" << j << ": " << name
+                      << " (index: " << indices[j]
+                      << ", offset: " << offset[j] << ")";
+        }
     }
     utils::Log( logStream.str(), utils::ELogLevel::Debug );
 

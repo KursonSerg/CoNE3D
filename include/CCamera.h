@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Buffers/CameraBuffer.h>
+
 // https://bitbucket.org/martinhofernandes/wheels/src/17aee21522ce8d07c7a74b138e528fadf04d62ed/include/wheels/enums.h++?at=default&fileviewer=file-view-default
 // https://github.com/grisumbras/enum-flags/blob/master/include/flags/flags.hpp
 // http://stackoverflow.com/a/18554839
@@ -48,64 +50,68 @@ public:
     CCamera(const glm::vec3 &position, const glm::vec3 &look);
 
     /**
-     * @brief The position of the camera
+     * @brief Gets the position of the camera
      */
-    const glm::vec3& position() const { return _position; }
-    void setPosition(const glm::vec3& position);
+    const glm::vec3 &getPosition() const { return _position; }
+    /**
+     * @brief Sets the position of the camera
+     * @param[in] position    New position
+     */
+    void setPosition(const glm::vec3 &position);
 
     /**
-     * @brief Offsets the cameras position
-     * @param offset    offset direction
+     * @brief Moves the camera
+     * @param[in] offset    Move direction
      */
-    void offsetPosition(const glm::vec3& offset);
+    void move(const glm::vec3 &offset);
 
     /**
-     * @brief Offsets the cameras orientation
-     * @param horizontalAngle   the angle (in radians) to offset rightwards (negative values are leftwards)
-     * @param verticalAngle     the angle (in radians) to offset downwards (negative values are upwards)
+     * @brief Rotates the camera by the `angle` around the `axis`
+     * @param[in] angle    Rotation angle
+     * @param[in] axis    Rotation axis
      */
-    void offsetOrientation(float horizontalAngle, float verticalAngle);
+    void rotate(float angle, const glm::vec3 &axis);
+    void roll(float angle);
+    void pitch(float angle);
+    void yaw(float angle);
 
     /**
      * @brief Orients the camera so that is it directly facing `position`
-     * @param position  the position to look at
+     * @param position  New position to look at
      */
     void lookAt(const glm::vec3 &position);
 
-    void setViewportAspectRatio(float aspectRatio);
+    void setAspectRatio(float aspectRatio);
 
     /**
-     * @brief The translation and rotation matrix of the camera
+     * @brief Gets the translation and rotation matrix of the camera
      */
-    const glm::mat4 &view() const { return _view; }
+    const glm::mat4 &getViewMatrix() const { return _viewMatrix; }
 
     /**
-     * @brief The perspective projection transformation matrix
+     * @brief Gets the perspective projection transformation matrix
      */
-    const glm::mat4 &projection() const { return _projection; }
+    const glm::mat4 &getProjectionMatrix() const { return _projectionMatrix; }
 
-    glm::mat4 viewProjection() const { return projection() * view(); }
+    glm::mat4 viewProjection() const { return _projectionMatrix * _viewMatrix; }
 
-    const glm::vec3 &forward() const { return _forward; }
-    const glm::vec3 &right() const { return _right; }
-    const glm::vec3 &up() const { return _up; }
+    const glm::vec3 &getDirection() const { return _direction; }
+    const glm::vec3 &getRight() const { return _right; }
+    const glm::vec3 &getUp() const { return _up; }
 
 private:
     glm::vec3 _position;
 
-    glm::vec3 _forward;
+    glm::vec3 _direction;
     glm::vec3 _right;
     glm::vec3 _up;
 
-    glm::mat4 _view;
-    glm::mat4 _projection;
+    glm::mat4 _viewMatrix;
+    glm::mat4 _projectionMatrix;
 
-    float _horizontalAngle;
-    float _verticalAngle;
+    void setViewMatrix(const glm::mat4 &getViewMatrix);
 
-    void updateOrientation();
-    void updateViewMatrix();
-    void normalizeAngles();
+    CCameraBuffer _buffer;
 };
 
 #endif // CCAMERA_H

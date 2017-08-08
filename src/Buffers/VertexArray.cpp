@@ -1,8 +1,8 @@
-#include <Objects/VertexArray.h>
+#include <Buffers/VertexArray.h>
 
 CVertexArray::CVertexArray()
+    : _vao(0)
 {
-    // Create a Vertex Array Object (VAO)
     glGenVertexArrays(1, &_vao);
 }
 
@@ -11,13 +11,12 @@ CVertexArray::~CVertexArray()
     glDeleteVertexArrays(1, &_vao);
 }
 
-void CVertexArray::bind()
+void CVertexArray::bind() const
 {
-    // Set VAO as the current one
     glBindVertexArray(_vao);
 }
 
-void CVertexArray::unbind()
+void CVertexArray::unbind() const
 {
     glBindVertexArray(0);
 }

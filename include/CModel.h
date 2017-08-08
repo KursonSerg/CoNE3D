@@ -10,9 +10,9 @@
 #include <CTexture.h>
 #include <Shaders/Program.h> // TODO: remove this
 
-#include <Objects/VertexArray.h>
-#include <Objects/VertexBuffer.h>
-#include <Objects/IndexBuffer.h>
+#include <Buffers/VertexArray.h>
+#include <Buffers/VertexBuffer.h>
+#include <Buffers/IndexBuffer.h>
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure

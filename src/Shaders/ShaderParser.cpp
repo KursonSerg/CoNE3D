@@ -43,7 +43,7 @@ std::string CShaderParser::parse(const std::string &path, const std::string &fil
         }
         else if ((pos = line.find(include)) != std::string::npos)
         {
-            source << parse(path, line.substr(pos + include.length()), level + 1) << std::endl;
+            source << parse(path, line.substr(pos + include.length()), level + 1);
         }
         else
         {
@@ -58,10 +58,12 @@ std::string CShaderParser::parse(const std::string &path, const std::string &fil
 void CShaderParser::addShader(GLenum type, std::stringstream &source)
 {
     if (type != 0)
+    {
         _shaders.emplace(type, source.str());
 
-    source.str(std::string());
-    source.clear();
+        source.str(std::string());
+        source.clear();
+    }
 }
 
 const std::unordered_map<std::string, GLenum> CShaderParser::_shaderTypes =

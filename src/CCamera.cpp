@@ -1,83 +1,69 @@
 #include <CCamera.h>
 #include <CLogger.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
+
 CCamera::CCamera(const glm::vec3 &position, const glm::vec3 &look)
     : _position(position)
-    , _horizontalAngle(0.0f)
-    , _verticalAngle(0.0f)
+    , _up(0.0f, 1.0f, 0.0f)
 {
     lookAt(look);
 }
 
 void CCamera::setPosition(const glm::vec3 &position)
 {
-    _position = position;
-
-    updateViewMatrix();
+    move(position - _position);
 }
 
-void CCamera::offsetPosition(const glm::vec3 &offset)
+void CCamera::move(const glm::vec3 &offset)
 {
+    setViewMatrix(glm::translate(_viewMatrix, -offset));
     _position += offset;
-
-    updateViewMatrix();
+    _buffer.setPosition(_position);
 }
 
-void CCamera::offsetOrientation(float horizontalAngle, float verticalAngle)
+void CCamera::rotate(float angle, const glm::vec3 &axis)
 {
-    _horizontalAngle += horizontalAngle;
-    _verticalAngle   += verticalAngle;
-    normalizeAngles();
+    _viewMatrix = glm::translate(_viewMatrix, _position);
+    _viewMatrix = glm::rotate(_viewMatrix, -angle, axis);
+    _direction = glm::rotate(_direction, angle, axis);
+    _right = glm::rotate(_right, angle, axis);
+    _up = glm::cross(_right, _direction);
+    setViewMatrix(glm::translate(_viewMatrix, -_position));
+}
 
-    updateOrientation();
+void CCamera::roll(float angle)
+{
+    rotate(angle, _direction);
+}
+
+void CCamera::pitch(float angle)
+{
+    rotate(angle, _right);
+}
+
+void CCamera::yaw(float angle)
+{
+    rotate(angle, _up);
 }
 
 void CCamera::lookAt(const glm::vec3 &position)
 {
     assert(position != _position);
-    glm::vec3 direction = glm::normalize(position - _position);
-    _verticalAngle = glm::degrees(asinf(-direction.y));
-    _horizontalAngle = glm::degrees(-atan2f(-direction.x, -direction.z));
-    normalizeAngles();
-
-    updateOrientation();
+    _direction = glm::normalize(position - _position);
+    _right = glm::cross(_direction, _up);
+    setViewMatrix(glm::lookAt(_position, position, _up));
 }
 
-void CCamera::setViewportAspectRatio(float aspectRatio)
+void CCamera::setAspectRatio(float aspectRatio)
 {
-    _projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+    _projectionMatrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+    _buffer.setProjectionMatrix(_projectionMatrix);
 }
 
-void CCamera::updateOrientation()
+void CCamera::setViewMatrix(const glm::mat4 &viewMatrix)
 {
-    glm::mat4 orientation;
-    orientation = glm::rotate(orientation, glm::radians(_verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-    orientation = glm::rotate(orientation, glm::radians(_horizontalAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    _forward = glm::vec3(glm::inverse(orientation) * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f));
-    _right = glm::vec3(glm::inverse(orientation) * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    _up = glm::vec3(glm::inverse(orientation) * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    // _up = glm::cross(_right, _forward);
-
-    updateViewMatrix();
-}
-
-void CCamera::updateViewMatrix()
-{
-    _view = glm::lookAt(_position, _position + _forward, _up);
-}
-
-void CCamera::normalizeAngles()
-{
-    static const float maxVerticalAngle = 85.0f; // TODO: Replace with quaternions
-
-    _horizontalAngle = std::fmod(_horizontalAngle, 360.0f);
-    // fmod can return negative values, but this will make them all positive
-    if (_horizontalAngle < 0.0f)
-        _horizontalAngle += 360.0f;
-
-    if (_verticalAngle > maxVerticalAngle)
-        _verticalAngle = maxVerticalAngle;
-    else if (_verticalAngle < -maxVerticalAngle)
-        _verticalAngle = -maxVerticalAngle;
+    _viewMatrix = viewMatrix;
+    _buffer.setViewMatrix(_viewMatrix);
 }
