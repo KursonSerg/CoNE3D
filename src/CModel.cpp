@@ -15,7 +15,7 @@ constexpr std::array<unsigned, SVertex::n> SVertex::offsets;
 static_assert(std::is_standard_layout<SVertex>::value, "not a standard layout");
 static_assert(sizeof(SVertex) / sizeof(float) == constexpr_accumulate(SVertex::offsets), "not matching offset layout");
 
-const unsigned int channel = 0; // TODO
+constexpr unsigned int channel = 0;
 
 CModel::CModel(const std::string &path)
 {

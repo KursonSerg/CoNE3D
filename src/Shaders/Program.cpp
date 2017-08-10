@@ -106,7 +106,7 @@ void CProgram::loadUniformBlocks()
 
         glGetActiveUniformBlockName(_id, i, MAX_LENGTH, &length, name);
 
-        glUniformBlockBinding(_id, i, i); // TODO: Add semantic parsing for binding
+        glUniformBlockBinding(_id, i, i); // FIXME: Implement semantic parsing for bindings
 
         glGetActiveUniformBlockiv(_id, i,  GL_UNIFORM_BLOCK_BINDING, &binding);
 

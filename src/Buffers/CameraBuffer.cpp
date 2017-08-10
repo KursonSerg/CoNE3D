@@ -10,7 +10,7 @@ struct alignas(16) SCameraBuffer
 };
 
 CCameraBuffer::CCameraBuffer()
-    : CUniformBuffer(sizeof(SCameraBuffer), 0) // TODO: Define bindings for uniform buffers
+    : CUniformBuffer(sizeof(SCameraBuffer), BUFFER_CAMERA_BINDING)
 {
 }
 

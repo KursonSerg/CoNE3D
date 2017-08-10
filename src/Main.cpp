@@ -22,12 +22,12 @@ public:
         Resize(width, height); // FIXME: Move to another place (but not CWindow constructor)
         Init();
 
-        _simple.loadShaders("assets/simple.glsl");
+        _simple.loadShaders("glsl/Basic.glsl");
         _simple.loadUniforms();
         _simple.loadUniformBlocks();
-//        _shading.loadShaders("assets/normal_mapping.glsl");
-//        _shading.loadUniforms();
-//        _shading.loadUniformBlocks();
+        _shading.loadShaders("glsl/NormalMapping.glsl");
+        _shading.loadUniforms();
+        _shading.loadUniformBlocks();
     }
 
     virtual ~CWindowTest()
@@ -89,7 +89,7 @@ void CWindowTest::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    bool useLight = false;
+    static const bool useLight = true;
 
     // Set shader program as the active one
     CProgram &current = useLight ? _shading : _simple;
@@ -100,20 +100,13 @@ void CWindowTest::Render()
         // Model matrix: Scale * Rotation * Translation
         glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
 
+        glUniformMatrix4fv(current.getUniform("uModel"), 1, GL_FALSE, glm::value_ptr(model));
         if (useLight)
         {
-            glUniform3fv(current.getUniform("LightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
-            glUniform1f(current.getUniform("LightPower"), 40.0f);
-
-            glUniformMatrix4fv(current.getUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
-            glUniformMatrix4fv(current.getUniform("V"), 1, GL_FALSE, glm::value_ptr(_camera.getViewMatrix()));
-            glUniformMatrix3fv(current.getUniform("MV3x3"), 1, GL_FALSE, glm::value_ptr(glm::mat3(_camera.getViewMatrix() * model)));
+            glUniform3fv(current.getUniform("uLightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
+            glUniform3fv(current.getUniform("uLightColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+            glUniform1f(current.getUniform("uLightPower"), 40.0f);
         }
-
-        // Set model & view & projection matrix in shader
-//        glUniformMatrix4fv(current.getUniform("MVP"), 1, GL_FALSE, glm::value_ptr(_camera.viewProjection() * model));
-
-        glUniformMatrix4fv(current.getUniform("M"), 1, GL_FALSE, glm::value_ptr(model));
 
         _model.Render();
     }
@@ -186,7 +179,7 @@ void CWindowTest::Cursor(float xpos, float ypos)
 {
     // utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%, %%)") << xpos << ypos, utils::ELogLevel::Debug);
 
-    const float mouseSensitivity = 0.001f;
+    const float mouseSensitivity = 0.0005f;
     const float rotate_x = _height/2.0f - ypos;
     const float rotate_y = _width/2.0f - xpos;
 

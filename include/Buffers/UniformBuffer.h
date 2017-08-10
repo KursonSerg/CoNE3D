@@ -2,6 +2,7 @@
 #define UNIFORMBUFFER_H
 
 #include <Common.h>
+#include <Defines.glsl>
 
 class CUniformBuffer
 {

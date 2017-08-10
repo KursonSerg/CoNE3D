@@ -130,6 +130,7 @@ endif()
 
 # Add the executable
 include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories("${PROJECT_SOURCE_DIR}/glsl")
 add_executable(${PROJECT_NAME} ${INCS} ${SRCS} ${BUFFERS} ${DRAWABLES} ${SHADERS})
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} glfw glad assimp OpenGL32)
@@ -137,5 +138,6 @@ else()
     target_link_libraries(${PROJECT_NAME} glfw glad assimp GL X11 Xi Xrandr Xxf86vm Xinerama Xcursor pthread)
 endif()
 
-# Copy all assets
+# Copy assets and shaders
 file(COPY ${PROJECT_SOURCE_DIR}/assets DESTINATION ${PROJECT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/glsl DESTINATION ${PROJECT_BINARY_DIR})
