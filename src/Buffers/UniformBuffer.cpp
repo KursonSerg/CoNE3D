@@ -1,6 +1,8 @@
 #include <Buffers/UniformBuffer.h>
 #include <cstring>
 
+//#define BUFFER_USE_MAPPING
+
 CUniformBuffer::CUniformBuffer(GLsizeiptr size, GLuint binding)
     : _ubo(0)
     , _size(size)
@@ -31,7 +33,7 @@ void CUniformBuffer::unbind() const
 void CUniformBuffer::setData(const void *data) const
 {
     bind();
-#if 1
+#ifndef BUFFER_USE_MAPPING
     glBufferSubData(GL_UNIFORM_BUFFER, 0, _size, data);
 #else
     void *buffer = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
@@ -44,7 +46,7 @@ void CUniformBuffer::setData(const void *data) const
 void CUniformBuffer::setSubData(GLintptr offset, GLsizeiptr size, const void *data) const
 {
     bind();
-#if 1
+#ifndef BUFFER_USE_MAPPING
     glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 #else
     uint8_t *buffer = static_cast<uint8_t *>(glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY));
