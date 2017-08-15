@@ -1,8 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <unordered_map>
-
 #include <Common.h>
 
 class CShader

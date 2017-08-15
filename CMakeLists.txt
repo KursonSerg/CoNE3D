@@ -81,8 +81,10 @@ set(BUFFERS
 set(DRAWABLES
     include/Drawables/Drawable.h
     include/Drawables/IndexedDrawable.h
+    include/Drawables/Mesh.h
     src/Drawables/Drawable.cpp
-    src/Drawables/IndexedDrawable.cpp)
+    src/Drawables/IndexedDrawable.cpp
+    src/Drawables/Mesh.cpp)
 
 set(SHADERS
     include/Shaders/Shader.h
@@ -98,7 +100,7 @@ set(INCS
     include/CFormat.h
     include/CLogger.h
     include/CWindow.h
-    include/CObject.h
+    include/Material.h
     include/CModel.h
     include/CCamera.h
     include/CTexture.h)
@@ -110,7 +112,7 @@ set(SRCS
     src/CFormat.cpp
     src/CLogger.cpp
     src/CWindow.cpp
-    src/CObject.cpp
+    src/Material.cpp
     src/CModel.cpp
     src/CCamera.cpp
     src/CTexture.cpp)

@@ -76,7 +76,8 @@ void CProgram::loadUniforms()
         {
             // Set all samplers to texture units
             ETextureUnit unit = getTextureUnit(std::string(name).substr(1));
-            glUniform1i(location, unit);
+            if (unit != MAX_TEXTURE_UNITS)
+                glUniform1i(location, unit);
         }
 
         logStream << std::endl << "Uniform #" << i << ": " << name << " (Type: 0x"

@@ -5,14 +5,14 @@
 
 #include <glm/glm.hpp>
 
-class CCameraBuffer : protected CUniformBuffer
+class CCameraBuffer final : private CUniformBuffer
 {
 public:
     CCameraBuffer();
 
-    void setProjectionMatrix(const glm::mat4& matrix) const;
-    void setViewMatrix(const glm::mat4& matrix) const;
-    void setPosition(const glm::vec3& position) const;
+    void setProjectionMatrix(const glm::mat4 &matrix) const;
+    void setViewMatrix(const glm::mat4 &matrix) const;
+    void setPosition(const glm::vec3 &position) const;
 };
 
 #endif // CAMERABUFFER_H

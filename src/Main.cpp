@@ -6,6 +6,43 @@
 
 #include <Shaders/Program.h>
 
+// https://bitbucket.org/martinhofernandes/wheels/src/17aee21522ce8d07c7a74b138e528fadf04d62ed/include/wheels/enums.h++?at=default&fileviewer=file-view-default
+// https://github.com/grisumbras/enum-flags/blob/master/include/flags/flags.hpp
+// http://stackoverflow.com/a/18554839
+// https://www.reddit.com/r/cpp/comments/14oqo9/a_nice_helper_function_for_c11s_enum_classes/
+
+#define FLAGS_UNARY_OPERATOR(OP, e_type) \
+    inline constexpr e_type operator OP(e_type const& value) { \
+        return static_cast<e_type>(OP static_cast<ul_type>(value)); \
+    }
+
+#define FLAGS_BINARY_OPERATOR(OP, e_type) \
+    inline constexpr e_type operator OP(e_type const& lhs, e_type const& rhs) { \
+        return static_cast<e_type>(static_cast<ul_type>(lhs) OP static_cast<ul_type>(rhs)); \
+    } \
+    inline e_type& operator OP##=(e_type& lhs, e_type const& rhs) { \
+        return lhs = lhs OP rhs; \
+    }
+
+#define ALLOW_FLAGS_FOR_ENUM(e_type) \
+    typedef std::underlying_type<e_type>::type ul_type; \
+    inline bool hasFlag(e_type a) { return static_cast<ul_type>(a); } \
+    FLAGS_UNARY_OPERATOR(~, e_type) \
+    FLAGS_BINARY_OPERATOR(|, e_type) \
+    FLAGS_BINARY_OPERATOR(&, e_type) \
+    FLAGS_BINARY_OPERATOR(^, e_type)
+
+enum class EDirection
+{
+    No       = 0,
+    Forward  = 1,
+    Backward = 2,
+    Left     = 4,
+    Right    = 8
+};
+
+ALLOW_FLAGS_FOR_ENUM(EDirection)
+
 class CWindowTest : public CWindow
 {
 public:
@@ -108,7 +145,7 @@ void CWindowTest::Render()
             glUniform1f(current.getUniform("uLightPower"), 40.0f);
         }
 
-        _model.Render();
+        _model.render();
     }
 
     current.unuse();

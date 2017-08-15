@@ -16,7 +16,11 @@ enum class ELogLevel {
     Debug
 };
 
+#ifndef NDEBUG
 #define LOG_LEVEL ELogLevel::Debug
+#else
+#define LOG_LEVEL ELogLevel::Info
+#endif
 #define LOG_TO_FILE 0
 
 class CLogger
