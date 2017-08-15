@@ -3,11 +3,28 @@
 void CMaterial::setDiffuseTexture(CTexture *texture)
 {
     _textures[TU_DIFFUSE].reset(texture);
+    _buffer.setUseDiffuseTexture(texture != nullptr);
 }
 
 void CMaterial::setNormalTexture(CTexture *texture)
 {
     _textures[TU_NORMAL].reset(texture);
+    _buffer.setUseNormalTexture(texture != nullptr);
+}
+
+void CMaterial::setDiffuseColor(const glm::vec3 &color) const
+{
+    _buffer.setDiffuseColor(color);
+}
+
+void CMaterial::setSpecularColor(const glm::vec3 &color) const
+{
+    _buffer.setSpecularColor(color);
+}
+
+void CMaterial::setAmbientColor(const glm::vec3 &color) const
+{
+    _buffer.setAmbientColor(color);
 }
 
 void CMaterial::bind() const
@@ -21,4 +38,5 @@ void CMaterial::bind() const
         }
     }
     glActiveTexture(GL_TEXTURE0);
+    _buffer.bind();
 }

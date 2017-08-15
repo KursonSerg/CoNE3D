@@ -5,13 +5,15 @@
 
 CUniformBuffer::CUniformBuffer(GLsizeiptr size, GLuint binding)
     : _ubo(0)
+    , _binding(binding)
     , _size(size)
 {
     glGenBuffers(1, &_ubo);
 
     bind();
     glBufferData(GL_UNIFORM_BUFFER, _size, nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, binding, _ubo);
+    reset();
+    glBindBufferBase(GL_UNIFORM_BUFFER, _binding, _ubo);
     unbind();
 }
 
@@ -22,7 +24,7 @@ CUniformBuffer::~CUniformBuffer()
 
 void CUniformBuffer::bind() const
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, _ubo);
+    glBindBufferBase(GL_UNIFORM_BUFFER, _binding, _ubo);
 }
 
 void CUniformBuffer::unbind() const
@@ -54,4 +56,11 @@ void CUniformBuffer::setSubData(GLintptr offset, GLsizeiptr size, const void *da
     glUnmapBuffer(GL_UNIFORM_BUFFER);
 #endif
     unbind();
+}
+
+void CUniformBuffer::reset() const
+{
+    void *buffer = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    memset(buffer, 0, _size);
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
 }

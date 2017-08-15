@@ -22,9 +22,6 @@ CTexture::CTexture(const std::string &filename)
     glGenTextures(1, &_texture);
     bind();
 
-    glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
     switch (_components)
     {
     case STBI_rgb:
@@ -39,6 +36,9 @@ CTexture::CTexture(const std::string &filename)
 
     glTexImage2D(_target, 0, _format, _width, _height, 0, _format, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(_target);
+
+    glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
     stbi_image_free(image);
     unbind();

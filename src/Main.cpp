@@ -62,7 +62,7 @@ public:
         _simple.loadShaders("glsl/Basic.glsl");
         _simple.loadUniforms();
         _simple.loadUniformBlocks();
-        _shading.loadShaders("glsl/NormalMapping.glsl");
+        _shading.loadShaders("glsl/Shading.glsl");
         _shading.loadUniforms();
         _shading.loadUniformBlocks();
     }
@@ -137,12 +137,12 @@ void CWindowTest::Render()
         // Model matrix: Scale * Rotation * Translation
         glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
 
-        glUniformMatrix4fv(current.getUniform("uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(model));
         if (useLight)
         {
-            glUniform3fv(current.getUniform("uLightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
-            glUniform3fv(current.getUniform("uLightColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
-            glUniform1f(current.getUniform("uLightPower"), 40.0f);
+            glUniform3fv(current.getUniform("lightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
+            glUniform3fv(current.getUniform("lightColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+            glUniform1f(current.getUniform("lightPower"), 40.0f);
         }
 
         _model.render();

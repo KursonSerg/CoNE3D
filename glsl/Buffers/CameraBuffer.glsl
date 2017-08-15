@@ -1,6 +1,6 @@
-layout(std140) uniform CameraBuffer
+layout(std140) uniform Camera
 {
-    mat4 uProjection;
-    mat4 uView;
-    vec3 uPosition;
+    mat4 viewMatrix;
+    mat4 projectionMatrix;
+    vec3 position;
 } camera;

@@ -2,6 +2,8 @@
 #include <Shaders/ShaderParser.h>
 #include <CLogger.h>
 
+#include <vector>
+
 CProgram::CProgram() :
     _id(glCreateProgram())
 {
@@ -111,27 +113,27 @@ void CProgram::loadUniformBlocks()
 
         glGetActiveUniformBlockiv(_id, i,  GL_UNIFORM_BLOCK_BINDING, &binding);
 
-        int size;
-        int numUniforms;
-        GLint indices[3];
+        GLint size, uniformsNumber;
         glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
-        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numUniforms);
-        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
+        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &uniformsNumber);
 
-        GLint offset[3];
-        glGetActiveUniformsiv(_id, numUniforms, reinterpret_cast<GLuint *>(indices), GL_UNIFORM_OFFSET, offset);
+        std::vector<GLint> indices(uniformsNumber);
+        glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices.data());
+
+        std::vector<GLint> offsets(uniformsNumber);
+        glGetActiveUniformsiv(_id, uniformsNumber, reinterpret_cast<GLuint *>(indices.data()), GL_UNIFORM_OFFSET, offsets.data());
 
         logStream << std::endl << "Uniform block #" << i << ": " << name
                   << " (binding: " << binding
                   << ", size: " << size
-                  << ", uniforms: " << numUniforms << ")";
+                  << ", uniforms: " << uniformsNumber << ")";
 
-        for (int j = 0; j < numUniforms; ++j)
+        for (int j = 0; j < uniformsNumber; ++j)
         {
             glGetActiveUniformName(_id, indices[j], MAX_LENGTH, &length, name);
             logStream << std::endl << "  Uniform #" << j << ": " << name
                       << " (index: " << indices[j]
-                      << ", offset: " << offset[j] << ")";
+                      << ", offset: " << offsets[j] << ")";
         }
     }
     utils::Log( logStream.str(), utils::ELogLevel::Debug );

@@ -72,11 +72,13 @@ set(BUFFERS
     include/Buffers/IndexBuffer.h
     include/Buffers/UniformBuffer.h
     include/Buffers/CameraBuffer.h
+    include/Buffers/MaterialBuffer.h
     src/Buffers/VertexArray.cpp
     src/Buffers/VertexBuffer.cpp
     src/Buffers/IndexBuffer.cpp
     src/Buffers/UniformBuffer.cpp
-    src/Buffers/CameraBuffer.cpp)
+    src/Buffers/CameraBuffer.cpp
+    src/Buffers/MaterialBuffer.cpp)
 
 set(DRAWABLES
     include/Drawables/Drawable.h

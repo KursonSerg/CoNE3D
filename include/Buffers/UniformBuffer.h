@@ -18,7 +18,10 @@ public:
 
 private:
     GLuint _ubo;
+    GLuint _binding;
     GLsizeiptr _size;
+
+    void reset() const;
 };
 
 #endif // UNIFORMBUFFER_H

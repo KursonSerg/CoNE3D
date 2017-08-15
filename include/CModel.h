@@ -31,6 +31,10 @@ private:
         return glm::vec3(vec.x, vec.y, vec.z);
     }
 
+    glm::vec3 to_vec(const aiColor3D &color) {
+        return glm::vec3(color.r, color.g, color.b);
+    }
+
     std::vector<std::shared_ptr<CMaterial>> _materials;
     std::vector<std::unique_ptr<CMesh>> _meshes;
 };

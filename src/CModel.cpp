@@ -33,9 +33,23 @@ void CModel::processMaterials(const aiScene *scene, const std::string &basePath)
     for (unsigned int m = 0; m < scene->mNumMaterials; ++m)
     {
         _materials[m].reset(new CMaterial);
+        const aiMaterial* material = scene->mMaterials[m];
+
+        aiColor3D color;
+        if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+        {
+            _materials[m]->setDiffuseColor(to_vec(color));
+        }
+        if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+        {
+            _materials[m]->setSpecularColor(to_vec(color));
+        }
+        if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
+        {
+            _materials[m]->setAmbientColor(to_vec(color));
+        }
 
         // Get diffuse texture filename
-        const aiMaterial* material = scene->mMaterials[m];
         if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {
             aiString texturePath;
