@@ -1,6 +1,6 @@
 #pragma vertex
 #version 330 core
-#include Defines.glsl
+#include Locations.glsl
 #include Buffers/CameraBuffer.glsl
 
 uniform mat4 modelMatrix;

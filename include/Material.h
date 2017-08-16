@@ -6,7 +6,6 @@
 
 #include <CTexture.h>
 #include <Buffers/MaterialBuffer.h>
-#include <Shaders/Program.h> // TODO: Remove this dependency
 
 class CMaterial final
 {

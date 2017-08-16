@@ -2,13 +2,13 @@
 
 void CMaterial::setDiffuseTexture(CTexture *texture)
 {
-    _textures[TU_DIFFUSE].reset(texture);
+    _textures[TEXTURE_UNIT_DIFFUSE].reset(texture);
     _buffer.setUseDiffuseTexture(texture != nullptr);
 }
 
 void CMaterial::setNormalTexture(CTexture *texture)
 {
-    _textures[TU_NORMAL].reset(texture);
+    _textures[TEXTURE_UNIT_NORMAL].reset(texture);
     _buffer.setUseNormalTexture(texture != nullptr);
 }
 

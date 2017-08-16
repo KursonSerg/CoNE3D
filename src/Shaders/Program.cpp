@@ -3,6 +3,7 @@
 #include <CLogger.h>
 
 #include <vector>
+#include <Bindings.glsl>
 
 CProgram::CProgram() :
     _id(glCreateProgram())
@@ -64,27 +65,28 @@ void CProgram::loadUniforms()
     logStream << "Active uniforms: " << count;
     for (GLint i = 0; i < count; ++i)
     {
-        GLint size;
-        GLenum type;
-
         const GLsizei MAX_LENGTH = 256;
         GLchar name[MAX_LENGTH];
         GLsizei length;
 
+        GLint size;
+        GLenum type;
         glGetActiveUniform(_id, static_cast<GLuint>(i), MAX_LENGTH, &length, &size, &type, name);
         GLint location = glGetUniformLocation(_id, name);
 
         if (location >= 0 && name[0] == 's')
         {
             // Set all samplers to texture units
-            ETextureUnit unit = getTextureUnit(std::string(name).substr(1));
+            GLint unit = getTextureUnit(std::string(name, length).substr(1));
             if (unit != MAX_TEXTURE_UNITS)
                 glUniform1i(location, unit);
         }
 
+#ifndef NDEBUG
         logStream << std::endl << "Uniform #" << i << ": " << name << " (Type: 0x"
                   << std::hex << std::uppercase << type
                   << std::nouppercase << std::dec << ")";
+#endif
     }
     utils::Log( logStream.str(), utils::ELogLevel::Debug );
 
@@ -102,18 +104,22 @@ void CProgram::loadUniformBlocks()
     logStream << "Active uniform blocks: " << count;
     for (GLint i = 0; i < count; ++i)
     {
-        GLint binding;
         const GLsizei MAX_LENGTH = 256;
         GLchar name[MAX_LENGTH];
         GLsizei length;
 
         glGetActiveUniformBlockName(_id, i, MAX_LENGTH, &length, name);
+        if (length > 0)
+        {
+            // Bind all uniform buffer objects
+            GLuint binding = getUniformBufferBinding(std::string(name, length));
+            if (binding != GL_INVALID_INDEX)
+                glUniformBlockBinding(_id, i, binding);
+        }
 
-        glUniformBlockBinding(_id, i, i); // FIXME: Implement semantic parsing for bindings
-
+#ifndef NDEBUG
+        GLint binding, size, uniformsNumber;
         glGetActiveUniformBlockiv(_id, i,  GL_UNIFORM_BLOCK_BINDING, &binding);
-
-        GLint size, uniformsNumber;
         glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
         glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &uniformsNumber);
 
@@ -135,19 +141,11 @@ void CProgram::loadUniformBlocks()
                       << " (index: " << indices[j]
                       << ", offset: " << offsets[j] << ")";
         }
+#endif
     }
     utils::Log( logStream.str(), utils::ELogLevel::Debug );
 
     unuse();
-}
-
-ETextureUnit CProgram::getTextureUnit(const std::string &name)
-{
-    auto it = _textureUnits.find(name);
-    if (it != _textureUnits.end())
-        return it->second;
-    else
-        return MAX_TEXTURE_UNITS;
 }
 
 void CProgram::check(GLenum status)
@@ -204,10 +202,33 @@ GLint CProgram::getUniform(const GLchar *name) const
     return uniform;
 }
 
-const std::unordered_map<std::string, ETextureUnit> CProgram::_textureUnits = {
-    { "DiffuseMap", TU_DIFFUSE },
-    { "NormalMap", TU_NORMAL },
-    { "SpecularMap", TU_SPECULAR },
-    { "EmissiveMap", TU_EMISSIVE },
-    { "EnvironmentMap", TU_ENVIRONMENT }
+GLint CProgram::getTextureUnit(const std::string &name)
+{
+    auto it = _textureUnits.find(name);
+    if (it != _textureUnits.end())
+        return it->second;
+    else
+        return MAX_TEXTURE_UNITS;
+}
+
+GLuint CProgram::getUniformBufferBinding(const std::string &name)
+{
+    auto it = _uniformBuffers.find(name);
+    if (it != _uniformBuffers.end())
+        return it->second;
+    else
+        return GL_INVALID_INDEX;
+}
+
+const std::unordered_map<std::string, GLint> CProgram::_textureUnits = {
+    { "DiffuseMap", TEXTURE_UNIT_DIFFUSE },
+    { "NormalMap", TEXTURE_UNIT_NORMAL },
+    { "SpecularMap", TEXTURE_UNIT_SPECULAR },
+    { "EmissiveMap", TEXTURE_UNIT_EMISSIVE }
+};
+
+const std::unordered_map<std::string, GLuint> CProgram::_uniformBuffers = {
+    { "Camera", BUFFER_CAMERA_BINDING },
+    { "Material", BUFFER_MATERIAL_BINDING },
+    { "Transform", BUFFER_TRANSFORM_BINDING }
 };

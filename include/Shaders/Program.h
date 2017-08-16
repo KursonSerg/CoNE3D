@@ -5,17 +5,6 @@
 
 #include <Shaders/Shader.h>
 
-enum ETextureUnit
-{
-    TU_DIFFUSE = 0,
-    TU_NORMAL = 1,
-    TU_SPECULAR = 2,
-    TU_EMISSIVE = 3,
-    TU_ENVIRONMENT = 4,
-
-    MAX_TEXTURE_UNITS
-};
-
 class CProgram
 {
 public:
@@ -44,8 +33,11 @@ private:
     void link();
     void check(GLenum status);
 
-    static const std::unordered_map<std::string, ETextureUnit> _textureUnits;
-    static ETextureUnit getTextureUnit(const std::string &name);
+    static const std::unordered_map<std::string, GLint> _textureUnits;
+    static GLint getTextureUnit(const std::string &name);
+
+    static const std::unordered_map<std::string, GLuint> _uniformBuffers;
+    static GLuint getUniformBufferBinding(const std::string &name);
 };
 
 #endif // PROGRAM_H

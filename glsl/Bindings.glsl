@@ -1,0 +1,16 @@
+#ifndef BINDINGS_H
+#define BINDINGS_H
+
+// Texture units bindings
+#define TEXTURE_UNIT_DIFFUSE 0
+#define TEXTURE_UNIT_NORMAL 1
+#define TEXTURE_UNIT_SPECULAR 2
+#define TEXTURE_UNIT_EMISSIVE 3
+#define MAX_TEXTURE_UNITS 4
+
+// Uniform buffers bindings
+#define BUFFER_CAMERA_BINDING 0
+#define BUFFER_MATERIAL_BINDING 1
+#define BUFFER_TRANSFORM_BINDING 2
+
+#endif // BINDINGS_H

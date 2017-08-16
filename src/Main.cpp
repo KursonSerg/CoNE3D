@@ -135,9 +135,9 @@ void CWindowTest::Render()
 
     {
         // Model matrix: Scale * Rotation * Translation
-        glm::mat4 model = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
+        glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
 
-        glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
         if (useLight)
         {
             glUniform3fv(current.getUniform("lightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));

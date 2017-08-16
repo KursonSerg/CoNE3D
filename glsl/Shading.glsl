@@ -1,6 +1,6 @@
 #pragma vertex
 #version 330 core
-#include Defines.glsl
+#include Locations.glsl
 #include Buffers/CameraBuffer.glsl
 
 layout(location = VERTEX_POSITION_LOCATION) in vec3 inPosition_modelspace;
