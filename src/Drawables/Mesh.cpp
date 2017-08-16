@@ -1,7 +1,7 @@
 #include <Drawables/Mesh.h>
 
 CMesh::CMesh(const std::vector<SVertex> &vertices, const std::vector<unsigned> &indices)
-    : CIndexedDrawable(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT)
+    : CIndexedDrawable(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT)
 {
     updateVertices(vertices.size() * sizeof(SVertex), vertices.data(), GL_STATIC_DRAW);
     for (unsigned j = 0, offset = 0; j < SVertex::offsets.size(); ++j)

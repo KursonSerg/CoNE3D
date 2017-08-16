@@ -122,10 +122,10 @@ set(SRCS
 # Compiler flags
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    set(CMAKE_C_CXX_FLAGS "/W4 /MD /Ox /Ob2 /Oi /Ot /Oy /GL /GF")
+    set(CMAKE_C_CXX_FLAGS "/Oi /Ot /Oy /GL /GF")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "/NOLOGO /INCREMENTAL:NO /OPT:REF /LTCG")
+    set(CMAKE_EXE_LINKER_FLAGS "/NOLOGO /OPT:REF /LTCG")
 else()
     set(CMAKE_C_CXX_FLAGS "-Wall -Wextra -Werror -pedantic -O3")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_CXX_FLAGS} -std=c11")
