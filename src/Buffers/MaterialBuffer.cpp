@@ -11,6 +11,8 @@ struct alignas(16) SMaterialBuffer
     GLint useDiffuseTexture;    // 48
     GLint useSpecularTexture;   // 52
     GLint useNormalTexture;     // 56
+
+    GLfloat shininess;          // 60
 }; // 64
 
 CMaterialBuffer::CMaterialBuffer()
@@ -46,4 +48,9 @@ void CMaterialBuffer::setUseSpecularTexture(GLint use)
 void CMaterialBuffer::setUseNormalTexture(GLint use)
 {
     setSubData(56, sizeof(GLint), &use);
+}
+
+void CMaterialBuffer::setShininess(GLfloat shininess)
+{
+    setSubData(60, sizeof(GLfloat), &shininess);
 }

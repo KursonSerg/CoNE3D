@@ -48,6 +48,11 @@ void CModel::processMaterials(const aiScene *scene, const std::string &basePath)
         {
             _materials[m]->setAmbientColor(to_vec(color));
         }
+        float shininess;
+        if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
+        {
+            _materials[m]->setShininess(shininess);
+        }
 
         // Get diffuse texture filename
         if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)

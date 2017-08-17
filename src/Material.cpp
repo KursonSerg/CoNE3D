@@ -27,6 +27,11 @@ void CMaterial::setAmbientColor(const glm::vec3 &color) const
     _buffer.setAmbientColor(color);
 }
 
+void CMaterial::setShininess(GLfloat shininess)
+{
+    _buffer.setShininess(shininess);
+}
+
 void CMaterial::bind() const
 {
     for (unsigned j = 0; j < _textures.size(); ++j)

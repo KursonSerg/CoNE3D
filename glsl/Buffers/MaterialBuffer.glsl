@@ -7,4 +7,6 @@ layout(std140) uniform Material
 	int useDiffuseTexture;
 	int useSpecularTexture;
 	int useNormalTexture;
+	
+	float shininess;
 } material;

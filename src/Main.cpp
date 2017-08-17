@@ -4,6 +4,9 @@
 #include <CModel.h>
 #include <CCamera.h>
 
+#include <Lights/DirectionalLight.h>
+#include <Lights/PointLight.h>
+#include <Lights/Spotlight.h>
 #include <Shaders/Program.h>
 
 class CWindowTest : public CWindow
@@ -11,8 +14,9 @@ class CWindowTest : public CWindow
 public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
-        , _camera(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(0.0f, 2.0f, 0.0f))
+        , _camera(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(0.0f, 3.5f, 0.0f))
         , _model("assets/hulk/hulk.obj")
+        , _light(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(-0.5f, 0.0f, -1.5f), 10.0f)
         , _rotateAngle(0.0f)
         , _rotateSpeed(0.0f)
     {
@@ -46,6 +50,7 @@ private:
     CProgram _simple;
     CProgram _shading;
     CModel   _model;
+    CSpotlight _light;
 
     float _rotateAngle;
     float _rotateSpeed;
@@ -53,12 +58,16 @@ private:
 
 void CWindowTest::Init()
 {
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
     glEnable(GL_CULL_FACE);
+
+    _light.setAmbientIntensity(0.5f);
+    _light.setDiffuseIntensity(50.0f);
+    _light.setColor(glm::vec3(1.0f));
 }
 
 void CWindowTest::Update(float deltaTime)
@@ -94,14 +103,10 @@ void CWindowTest::Render()
     {
         // Model matrix: Scale * Rotation * Translation
         glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_rotateAngle), glm::vec3(0.0f, 1.0f, 0.0f) );
-
         glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        if (useLight)
-        {
-            glUniform3fv(current.getUniform("lightPosition_worldspace"), 1, glm::value_ptr(glm::vec3(4.0f, 4.0f, 4.0f)));
-            glUniform3fv(current.getUniform("lightColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
-            glUniform1f(current.getUniform("lightPower"), 40.0f);
-        }
+
+        _light.setPosition(_camera.getPosition());
+        _light.setDirection(_camera.getDirection());
 
         _model.render();
     }

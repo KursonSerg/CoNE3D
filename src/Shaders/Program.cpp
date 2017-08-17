@@ -205,19 +205,23 @@ GLint CProgram::getUniform(const GLchar *name) const
 GLint CProgram::getTextureUnit(const std::string &name)
 {
     auto it = _textureUnits.find(name);
-    if (it != _textureUnits.end())
+    if (it != _textureUnits.end()) {
         return it->second;
-    else
+    } else {
+        utils::Log(utils::CFormat(L"Unknown '%%' texture unit") << name, utils::ELogLevel::Warning);
         return MAX_TEXTURE_UNITS;
+    }
 }
 
 GLuint CProgram::getUniformBufferBinding(const std::string &name)
 {
     auto it = _uniformBuffers.find(name);
-    if (it != _uniformBuffers.end())
+    if (it != _uniformBuffers.end()) {
         return it->second;
-    else
+    } else {
+        utils::Log(utils::CFormat(L"Unknown '%%' uniform buffer") << name, utils::ELogLevel::Warning);
         return GL_INVALID_INDEX;
+    }
 }
 
 const std::unordered_map<std::string, GLint> CProgram::_textureUnits = {
@@ -230,5 +234,6 @@ const std::unordered_map<std::string, GLint> CProgram::_textureUnits = {
 const std::unordered_map<std::string, GLuint> CProgram::_uniformBuffers = {
     { "Camera", BUFFER_CAMERA_BINDING },
     { "Material", BUFFER_MATERIAL_BINDING },
-    { "Transform", BUFFER_TRANSFORM_BINDING }
+    { "Transform", BUFFER_TRANSFORM_BINDING },
+    { "Light", BUFFER_LIGHT_BINDING }
 };

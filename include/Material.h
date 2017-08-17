@@ -17,6 +17,8 @@ public:
     void setSpecularColor(const glm::vec3 &color) const;
     void setAmbientColor(const glm::vec3 &color) const;
 
+    void setShininess(GLfloat shininess);
+
     void bind() const;
 
 private:

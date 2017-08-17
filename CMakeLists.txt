@@ -73,12 +73,14 @@ set(BUFFERS
     include/Buffers/UniformBuffer.h
     include/Buffers/CameraBuffer.h
     include/Buffers/MaterialBuffer.h
+    include/Buffers/LightBuffer.h
     src/Buffers/VertexArray.cpp
     src/Buffers/VertexBuffer.cpp
     src/Buffers/IndexBuffer.cpp
     src/Buffers/UniformBuffer.cpp
     src/Buffers/CameraBuffer.cpp
-    src/Buffers/MaterialBuffer.cpp)
+    src/Buffers/MaterialBuffer.cpp
+    src/Buffers/LightBuffer.cpp)
 
 set(DRAWABLES
     include/Drawables/Drawable.h
@@ -87,6 +89,16 @@ set(DRAWABLES
     src/Drawables/Drawable.cpp
     src/Drawables/IndexedDrawable.cpp
     src/Drawables/Mesh.cpp)
+
+set(LIGHTS
+    include/Lights/Light.h
+    include/Lights/DirectionalLight.h
+    include/Lights/PointLight.h
+    include/Lights/Spotlight.h
+    src/Lights/Light.cpp
+    src/Lights/DirectionalLight.cpp
+    src/Lights/PointLight.cpp
+    src/Lights/Spotlight.cpp)
 
 set(SHADERS
     include/Shaders/Shader.h
@@ -135,7 +147,7 @@ endif()
 # Add the executable
 include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories("${PROJECT_SOURCE_DIR}/glsl")
-add_executable(${PROJECT_NAME} ${INCS} ${SRCS} ${BUFFERS} ${DRAWABLES} ${SHADERS})
+add_executable(${PROJECT_NAME} ${INCS} ${SRCS} ${BUFFERS} ${DRAWABLES} ${LIGHTS} ${SHADERS})
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} glfw glad assimp OpenGL32)
 else()

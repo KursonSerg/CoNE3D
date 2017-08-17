@@ -17,6 +17,8 @@ public:
     void setUseDiffuseTexture(GLint use);
     void setUseSpecularTexture(GLint use);
     void setUseNormalTexture(GLint use);
+
+    void setShininess(GLfloat shininess);
 };
 
 #endif // MATERIALBUFFER_H
