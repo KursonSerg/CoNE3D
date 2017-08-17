@@ -20,6 +20,11 @@ public:
 
     void Process();
 
+    bool Running()
+    {
+        return glfwWindowShouldClose( _window.get() ) != 1;
+    }
+
     void Destroy()
     {
         glfwSetWindowShouldClose(_window.get(), 1);
@@ -36,14 +41,14 @@ public:
     }
 
 protected:
-    bool Running()
+    int GetKeyState(int key)
     {
-        return glfwWindowShouldClose( _window.get() ) != 1;
+        return glfwGetKey(_window.get(), key);
     }
 
-    void CenterMouse()
+    void SetCursorPosition(float x, float y)
     {
-        glfwSetCursorPos(_window.get(), static_cast<double>(_width/2.0f), static_cast<double>(_height/2.0f));
+        glfwSetCursorPos(_window.get(), static_cast<double>(x), static_cast<double>(y));
     }
 
     float _width;

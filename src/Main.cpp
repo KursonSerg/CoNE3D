@@ -6,53 +6,15 @@
 
 #include <Shaders/Program.h>
 
-// https://bitbucket.org/martinhofernandes/wheels/src/17aee21522ce8d07c7a74b138e528fadf04d62ed/include/wheels/enums.h++?at=default&fileviewer=file-view-default
-// https://github.com/grisumbras/enum-flags/blob/master/include/flags/flags.hpp
-// http://stackoverflow.com/a/18554839
-// https://www.reddit.com/r/cpp/comments/14oqo9/a_nice_helper_function_for_c11s_enum_classes/
-
-#define FLAGS_UNARY_OPERATOR(OP, e_type) \
-    inline constexpr e_type operator OP(e_type const& value) { \
-        return static_cast<e_type>(OP static_cast<ul_type>(value)); \
-    }
-
-#define FLAGS_BINARY_OPERATOR(OP, e_type) \
-    inline constexpr e_type operator OP(e_type const& lhs, e_type const& rhs) { \
-        return static_cast<e_type>(static_cast<ul_type>(lhs) OP static_cast<ul_type>(rhs)); \
-    } \
-    inline e_type& operator OP##=(e_type& lhs, e_type const& rhs) { \
-        return lhs = lhs OP rhs; \
-    }
-
-#define ALLOW_FLAGS_FOR_ENUM(e_type) \
-    typedef std::underlying_type<e_type>::type ul_type; \
-    inline bool hasFlag(e_type a) { return static_cast<ul_type>(a); } \
-    FLAGS_UNARY_OPERATOR(~, e_type) \
-    FLAGS_BINARY_OPERATOR(|, e_type) \
-    FLAGS_BINARY_OPERATOR(&, e_type) \
-    FLAGS_BINARY_OPERATOR(^, e_type)
-
-enum class EDirection
-{
-    No       = 0,
-    Forward  = 1,
-    Backward = 2,
-    Left     = 4,
-    Right    = 8
-};
-
-ALLOW_FLAGS_FOR_ENUM(EDirection)
-
 class CWindowTest : public CWindow
 {
 public:
     CWindowTest(int width, int height, const std::wstring &title)
         : CWindow(width, height, title)
-        , _camera(glm::vec3(5.0f, 4.0f, 4.0f), glm::vec3(0.0f, 2.0f, 0.0f))
+        , _camera(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(0.0f, 2.0f, 0.0f))
         , _model("assets/hulk/hulk.obj")
-        , _angle(0.0f)
-        , _speed(45.0f)
-        , _movementDirection(EDirection::No)
+        , _rotateAngle(0.0f)
+        , _rotateSpeed(0.0f)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
 
@@ -85,10 +47,8 @@ private:
     CProgram _shading;
     CModel   _model;
 
-    float _angle;
-    float _speed;
-
-    EDirection _movementDirection;
+    float _rotateAngle;
+    float _rotateSpeed;
 };
 
 void CWindowTest::Init()
@@ -97,27 +57,26 @@ void CWindowTest::Init()
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
     glEnable(GL_CULL_FACE);
 }
 
 void CWindowTest::Update(float deltaTime)
 {
-    _angle += _speed * deltaTime;
-    if (_angle >= 360.0f) {
-        _angle = 0.0f;
+    _rotateAngle += _rotateSpeed * deltaTime;
+    if (_rotateAngle >= 360.0f) {
+        _rotateAngle = 0.0f;
     }
 
-    const float moveSpeed = 5.0f; // units per second
-    if (hasFlag(_movementDirection & EDirection::Forward)) {
+    static const float moveSpeed = 5.0f; // units per second
+
+    if (GetKeyState(GLFW_KEY_W) == GLFW_PRESS) {
         _camera.move(deltaTime * moveSpeed * _camera.getDirection());
-    }
-    else if (hasFlag(_movementDirection & EDirection::Backward)) {
+    } else if (GetKeyState(GLFW_KEY_S) == GLFW_PRESS) {
         _camera.move(deltaTime * moveSpeed * -_camera.getDirection());
-    }
-    if (hasFlag(_movementDirection & EDirection::Right)) {
+    } else if (GetKeyState(GLFW_KEY_D) == GLFW_PRESS) {
         _camera.move(deltaTime * moveSpeed * _camera.getRight());
-    }
-    else if (hasFlag(_movementDirection & EDirection::Left)) {
+    } else if (GetKeyState(GLFW_KEY_A) == GLFW_PRESS) {
         _camera.move(deltaTime * moveSpeed * -_camera.getRight());
     }
 }
@@ -132,10 +91,9 @@ void CWindowTest::Render()
     CProgram &current = useLight ? _shading : _simple;
 
     current.use();
-
     {
         // Model matrix: Scale * Rotation * Translation
-        glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_angle), glm::vec3(0.0f, 1.0f, 0.0f) );
+        glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_rotateAngle), glm::vec3(0.0f, 1.0f, 0.0f) );
 
         glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
         if (useLight)
@@ -147,10 +105,9 @@ void CWindowTest::Render()
 
         _model.render();
     }
-
     current.unuse();
 
-    CenterMouse();
+    SetCursorPosition(_width/2.0f, _height/2.0f);
 
     utils::checkErrorStatus();
 }
@@ -161,7 +118,6 @@ void CWindowTest::Resize(int width, int height)
 
     _camera.setAspectRatio( static_cast<float>(_width / _height) );
 
-    // Set viewport
     glViewport(0, 0, width, height);
 }
 
@@ -171,43 +127,17 @@ void CWindowTest::Key(int key, int action, int mods)
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         Destroy();
-    }/* else if (key == GLFW_KEY_LEFT) {
+    } else if (key == GLFW_KEY_LEFT) {
         if (action == GLFW_PRESS) {
-            _speed = 1.0;
-        } else if (action == GLFW_RELEASE && _speed > 0.0) {
-            _speed = 0.0;
+            _rotateSpeed = 45.0f;
+        } else if (action == GLFW_RELEASE && _rotateSpeed > 0.0f) {
+            _rotateSpeed = 0.0f;
         }
     } else if (key == GLFW_KEY_RIGHT) {
         if (action == GLFW_PRESS) {
-            _speed = -1.0;
-        } else if (action == GLFW_RELEASE && _speed < 0.0) {
-            _speed = 0.0;
-        }
-    }*/
-
-    if (key == GLFW_KEY_W) {
-        if (action == GLFW_PRESS) {
-            _movementDirection |= EDirection::Forward;
-        } else if (action == GLFW_RELEASE) {
-            _movementDirection &= ~EDirection::Forward;
-        }
-    } else if (key == GLFW_KEY_S) {
-        if (action == GLFW_PRESS) {
-            _movementDirection |= EDirection::Backward;
-        } else if (action == GLFW_RELEASE) {
-            _movementDirection &= ~EDirection::Backward;
-        }
-    } else if (key == GLFW_KEY_D) {
-        if (action == GLFW_PRESS) {
-            _movementDirection |= EDirection::Right;
-        } else if (action == GLFW_RELEASE) {
-            _movementDirection &= ~EDirection::Right;
-        }
-    } else if (key == GLFW_KEY_A) {
-        if (action == GLFW_PRESS) {
-            _movementDirection |= EDirection::Left;
-        } else if (action == GLFW_RELEASE) {
-            _movementDirection &= ~EDirection::Left;
+            _rotateSpeed = -45.0f;
+        } else if (action == GLFW_RELEASE && _rotateSpeed < 0.0f) {
+            _rotateSpeed = 0.0f;
         }
     }
 }
@@ -216,7 +146,8 @@ void CWindowTest::Cursor(float xpos, float ypos)
 {
     // utils::Log(utils::CFormat(L"CWindowTest::Cursor(%%, %%)") << xpos << ypos, utils::ELogLevel::Debug);
 
-    const float mouseSensitivity = 0.0005f;
+    static const float mouseSensitivity = 0.0005f;
+
     const float rotate_x = _height/2.0f - ypos;
     const float rotate_y = _width/2.0f - xpos;
 

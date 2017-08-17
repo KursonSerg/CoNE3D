@@ -5,9 +5,9 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 CCamera::CCamera(const glm::vec3 &position, const glm::vec3 &look)
-    : _position(position)
-    , _up(0.0f, 1.0f, 0.0f)
+    : _up(0.0f, 1.0f, 0.0f)
 {
+    setPosition(position);
     lookAt(look);
 }
 
