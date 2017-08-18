@@ -23,9 +23,16 @@ CTexture::CTexture(const std::string &filename)
     glGenTextures(1, &_texture);
     bind();
 
-
     switch (_components)
     {
+	case STBI_grey:
+		_internalformat = GL_SLUMINANCE;
+		_format = GL_LUMINANCE;
+		break;
+	case STBI_grey_alpha:
+		_internalformat = GL_SLUMINANCE_ALPHA;
+		_format = GL_LUMINANCE_ALPHA;
+		break;
     case STBI_rgb:
         _internalformat = GL_SRGB;
         _format = GL_RGB;
