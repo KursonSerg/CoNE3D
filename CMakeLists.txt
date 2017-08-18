@@ -95,10 +95,12 @@ set(LIGHTS
     include/Lights/DirectionalLight.h
     include/Lights/PointLight.h
     include/Lights/Spotlight.h
+    include/Lights/LightRenderer.h
     src/Lights/Light.cpp
     src/Lights/DirectionalLight.cpp
     src/Lights/PointLight.cpp
-    src/Lights/Spotlight.cpp)
+    src/Lights/Spotlight.cpp
+    src/Lights/LightRenderer.cpp)
 
 set(SHADERS
     include/Shaders/Shader.h

@@ -14,6 +14,7 @@ public:
 
 protected:
     CLightBuffer _buffer;
+    friend class CLightRenderer;
 };
 
 #endif // LIGHT_H

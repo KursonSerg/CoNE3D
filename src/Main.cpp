@@ -4,9 +4,7 @@
 #include <CModel.h>
 #include <CCamera.h>
 
-#include <Lights/DirectionalLight.h>
-#include <Lights/PointLight.h>
-#include <Lights/Spotlight.h>
+#include <Lights/LightRenderer.h>
 #include <Shaders/Program.h>
 
 class CWindowTest : public CWindow
@@ -16,7 +14,6 @@ public:
         : CWindow(width, height, title)
         , _camera(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(0.0f, 3.5f, 0.0f))
         , _model("assets/hulk/hulk.obj")
-        , _light(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(-0.5f, 0.0f, -1.5f), 10.0f)
         , _rotateAngle(0.0f)
         , _rotateSpeed(0.0f)
     {
@@ -50,7 +47,11 @@ private:
     CProgram _simple;
     CProgram _shading;
     CModel   _model;
-    CSpotlight _light;
+
+    CLightRenderer _lights;
+    std::shared_ptr<CDirectionalLight> _directionalLight;
+    std::shared_ptr<CPointLight> _pointLight;
+    std::shared_ptr<CSpotlight> _spotlight;
 
     float _rotateAngle;
     float _rotateSpeed;
@@ -64,10 +65,19 @@ void CWindowTest::Init()
     glDepthFunc(GL_LESS);
 
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
-    _light.setAmbientIntensity(0.5f);
-    _light.setDiffuseIntensity(50.0f);
-    _light.setColor(glm::vec3(1.0f));
+    _directionalLight.reset(new CDirectionalLight(glm::vec3(1.0f, 1.0f, 0.0f)));
+    _directionalLight->setAmbientIntensity(0.01f);
+    _directionalLight->setDiffuseIntensity(2.0f);
+    _directionalLight->setColor(glm::vec3(1.0f, 0.2f, 0.0f));
+    _lights.addLight(_directionalLight);
+
+    _pointLight.reset(new CPointLight(glm::vec3(-1.0f, 1.0f, 2.0f)));
+    _pointLight->setAmbientIntensity(0.01f);
+    _pointLight->setDiffuseIntensity(30.0f);
+    _pointLight->setColor(glm::vec3(1.0f, 0.7f, 0.0f));
+    _lights.addLight(_pointLight);
 }
 
 void CWindowTest::Update(float deltaTime)
@@ -105,9 +115,27 @@ void CWindowTest::Render()
         glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_rotateAngle), glm::vec3(0.0f, 1.0f, 0.0f) );
         glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
-        _light.setPosition(_camera.getPosition());
-        _light.setDirection(_camera.getDirection());
+        if (GetKeyState(GLFW_KEY_Q) == GLFW_PRESS && _spotlight)
+        {
+            _spotlight.reset();
+        }
+        else if (GetKeyState(GLFW_KEY_E) == GLFW_PRESS && !_spotlight)
+        {
+//            _spotlight.reset(new CSpotlight(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(-0.5f, 0.0f, -1.5f), 10.0f));
+            _spotlight.reset(new CSpotlight(_camera.getPosition(), _camera.getDirection(), 10.0f));
+            _spotlight->setAmbientIntensity(0.01f);
+            _spotlight->setDiffuseIntensity(50.0f);
+            _spotlight->setColor(glm::vec3(0.0f, 0.2f, 1.0f));
+            _lights.addLight(_spotlight);
+        }
 
+        if (GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && _spotlight)
+        {
+            _spotlight->setPosition(_camera.getPosition());
+            _spotlight->setDirection(_camera.getDirection());
+        }
+
+        _lights.render();
         _model.render();
     }
     current.unuse();

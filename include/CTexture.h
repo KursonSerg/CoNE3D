@@ -32,6 +32,7 @@ public:
 private:
     GLenum _target;
     GLuint _texture;
+    GLint  _internalformat;
     GLenum _format;
 
     int _width;

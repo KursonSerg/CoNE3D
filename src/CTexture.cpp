@@ -8,6 +8,7 @@
 CTexture::CTexture(const std::string &filename)
     : _target(GL_TEXTURE_2D)
     , _texture(0)
+    , _internalformat(GL_SRGB)
     , _format(GL_RGB)
     , _width(0)
     , _height(0)
@@ -22,19 +23,22 @@ CTexture::CTexture(const std::string &filename)
     glGenTextures(1, &_texture);
     bind();
 
+
     switch (_components)
     {
     case STBI_rgb:
+        _internalformat = GL_SRGB;
         _format = GL_RGB;
         break;
     case STBI_rgb_alpha:
+        _internalformat = GL_SRGB_ALPHA;
         _format = GL_RGBA;
         break;
     default:
         break;
     }
 
-    glTexImage2D(_target, 0, _format, _width, _height, 0, _format, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(_target, 0, _internalformat, _width, _height, 0, _format, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(_target);
 
     glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

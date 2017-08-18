@@ -235,5 +235,5 @@ const std::unordered_map<std::string, GLuint> CProgram::_uniformBuffers = {
     { "Camera", BUFFER_CAMERA_BINDING },
     { "Material", BUFFER_MATERIAL_BINDING },
     { "Transform", BUFFER_TRANSFORM_BINDING },
-    { "Light", BUFFER_LIGHT_BINDING }
+    { "Lights", BUFFER_LIGHT_BINDING }
 };

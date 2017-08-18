@@ -42,18 +42,17 @@ uniform sampler2D sDiffuseMap;
 uniform sampler2D sNormalMap;
 uniform sampler2D sSpecularMap;
 
-vec3 applyLight(vec3 surfaceNormal, vec3 surfacePosition, vec3 directionToCamera)
+vec3 applyLight(Light light, vec3 surfaceNormal, vec3 surfacePosition, vec3 directionToCamera)
 {
 	vec3 materialDiffuseColor = vec3(material.useDiffuseTexture != 0 ? texture(sDiffuseMap, UV) : material.diffuseColor);
 	vec3 materialSpecularColor = vec3(material.useSpecularTexture != 0 ? texture(sSpecularMap, UV) : material.specularColor);
 	vec3 materialAmbientColor = material.ambientColor.rgb * materialDiffuseColor;
 	float materialShininess = material.shininess > 0.0 ? material.shininess : 8.0;
 
-	float attenuation;
+	float attenuation = 1.0;
 	vec3 directionToLight;
 	if (light.type == LIGHT_DIRECTIONAL)
 	{
-		attenuation = 1.0;
 		directionToLight = normalize(light.direction);
 	}
 	else
@@ -61,14 +60,13 @@ vec3 applyLight(vec3 surfaceNormal, vec3 surfacePosition, vec3 directionToCamera
 		// Distance to the light
 		directionToLight = normalize(light.position - surfacePosition);
 		float distanceToLight = length(light.position - surfacePosition);
-		attenuation = 1.0 / (1.0 + pow(distanceToLight, 2.0));
-		
+
 		if (light.type == LIGHT_SPOTLIGHT)
 		{
 			float lightToSurfaceAngle = degrees(acos(dot(-directionToLight, normalize(light.direction))));
-			if (lightToSurfaceAngle > light.coneAngle)
-				attenuation = 0.0;
+			attenuation = clamp((light.coneAngle - lightToSurfaceAngle)/light.coneAngle, 0.0, 1.0);
 		}
+		attenuation /= 1.0 + distanceToLight;
 	}
 
 	// Cosine of the angle between the normal and the light direction, clamped above 0
@@ -96,5 +94,12 @@ vec3 applyLight(vec3 surfaceNormal, vec3 surfacePosition, vec3 directionToCamera
 
 void main()
 {
-	outColor = applyLight(Normal_worldspace, Position_worldspace, CameraDirection_worldspace);
+	vec3 linearColor = vec3(0.0);
+	for (uint i = 0u; i < lights.lightsNumber; ++i)
+	{
+		linearColor += applyLight(lights.light[i], Normal_worldspace, Position_worldspace, CameraDirection_worldspace);
+	}
+
+	float gamma = 2.2;
+	outColor = pow(linearColor, vec3(1.0/gamma));
 }
