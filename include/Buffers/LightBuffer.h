@@ -22,6 +22,14 @@ public:
 
 private:
     std::vector<uint8_t> _data;
+    bool _changed;
+
+    uint8_t * const getData()
+    {
+        return _data.data();
+    }
+    void setData(GLintptr offset, const void *data, GLsizeiptr size);
+
     friend class CLightBuffers;
 };
 
@@ -30,7 +38,7 @@ class CLightBuffers final : public CUniformBuffer
 public:
     CLightBuffers();
 
-    void setLightBuffer(unsigned index, const CLightBuffer &buffer);
+    void setLightBuffer(unsigned index, CLightBuffer &buffer, bool force);
     void setLightsNumber(GLuint number);
 };
 

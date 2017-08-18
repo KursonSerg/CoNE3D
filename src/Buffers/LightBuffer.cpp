@@ -21,42 +21,49 @@ struct alignas(16) SLightBuffers
 
 CLightBuffer::CLightBuffer()
     : _data(sizeof(SLightBuffer))
+    , _changed(false)
 {
 }
 
 void CLightBuffer::setType(int type)
 {
-    memcpy(_data.data() + 0, &type, sizeof(int));
+    setData(0, &type, sizeof(int));
 }
 
 void CLightBuffer::setAmbientIntensity(float intensity)
 {
-    memcpy(_data.data() + 4, &intensity, sizeof(float));
+    setData(4, &intensity, sizeof(float));
 }
 
 void CLightBuffer::setDiffuseIntensity(float intensity)
 {
-    memcpy(_data.data() + 8, &intensity, sizeof(float));
+    setData(8, &intensity, sizeof(float));
 }
 
 void CLightBuffer::setConeAngle(float angle)
 {
-    memcpy(_data.data() + 12, &angle, sizeof(float));
+    setData(12, &angle, sizeof(float));
 }
 
 void CLightBuffer::setPosition(const glm::vec3 &position)
 {
-    memcpy(_data.data() + 16, glm::value_ptr(position), sizeof(glm::vec3));
+    setData(16, glm::value_ptr(position), sizeof(glm::vec3));
 }
 
 void CLightBuffer::setDirection(const glm::vec3 &direction)
 {
-    memcpy(_data.data() + 32, glm::value_ptr(direction), sizeof(glm::vec3));
+    setData(32, glm::value_ptr(direction), sizeof(glm::vec3));
 }
 
 void CLightBuffer::setColor(const glm::vec3 &color)
 {
-    memcpy(_data.data() + 48, glm::value_ptr(color), sizeof(glm::vec3));
+    setData(48, glm::value_ptr(color), sizeof(glm::vec3));
+}
+
+void CLightBuffer::setData(GLintptr offset, const void *data, GLsizeiptr size)
+{
+    memcpy(getData() + offset, data, size);
+    _changed = true;
 }
 
 CLightBuffers::CLightBuffers()
@@ -64,9 +71,12 @@ CLightBuffers::CLightBuffers()
 {
 }
 
-void CLightBuffers::setLightBuffer(unsigned index, const CLightBuffer &buffer)
+void CLightBuffers::setLightBuffer(unsigned index, CLightBuffer &buffer, bool force)
 {
-    setSubData(sizeof(SLightBuffer) * index, sizeof(SLightBuffer), buffer._data.data());
+    if (buffer._changed || force) {
+        setSubData(sizeof(SLightBuffer) * index, sizeof(SLightBuffer), buffer.getData());
+        buffer._changed = false;
+    }
 }
 
 void CLightBuffers::setLightsNumber(GLuint number)

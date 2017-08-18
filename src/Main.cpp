@@ -16,6 +16,7 @@ public:
         , _model("assets/hulk/hulk.obj")
         , _rotateAngle(0.0f)
         , _rotateSpeed(0.0f)
+        , _spotlightOn(true)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
 
@@ -52,6 +53,7 @@ private:
     std::shared_ptr<CDirectionalLight> _directionalLight;
     std::shared_ptr<CPointLight> _pointLight;
     std::shared_ptr<CSpotlight> _spotlight;
+    bool _spotlightOn;
 
     float _rotateAngle;
     float _rotateSpeed;
@@ -115,11 +117,7 @@ void CWindowTest::Render()
         glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_rotateAngle), glm::vec3(0.0f, 1.0f, 0.0f) );
         glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
-        if (GetKeyState(GLFW_KEY_Q) == GLFW_PRESS && _spotlight)
-        {
-            _spotlight.reset();
-        }
-        else if (GetKeyState(GLFW_KEY_E) == GLFW_PRESS && !_spotlight)
+        if (_spotlightOn && !_spotlight)
         {
 //            _spotlight.reset(new CSpotlight(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(-0.5f, 0.0f, -1.5f), 10.0f));
             _spotlight.reset(new CSpotlight(_camera.getPosition(), _camera.getDirection(), 10.0f));
@@ -127,6 +125,10 @@ void CWindowTest::Render()
             _spotlight->setDiffuseIntensity(50.0f);
             _spotlight->setColor(glm::vec3(0.0f, 0.2f, 1.0f));
             _lights.addLight(_spotlight);
+        }
+        else if (!_spotlightOn && _spotlight)
+        {
+            _spotlight.reset();
         }
 
         if (GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && _spotlight)
@@ -171,6 +173,10 @@ void CWindowTest::Key(int key, int action, int mods)
             _rotateSpeed = -45.0f;
         } else if (action == GLFW_RELEASE && _rotateSpeed < 0.0f) {
             _rotateSpeed = 0.0f;
+        }
+    } else if (key == GLFW_KEY_F) {
+        if (action == GLFW_PRESS) {
+            _spotlightOn = !_spotlightOn;
         }
     }
 }
