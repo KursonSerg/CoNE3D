@@ -1,10 +1,10 @@
-#ifndef C_FORMAT_H
-#define C_FORMAT_H
+#ifndef FORMAT_H
+#define FORMAT_H
 
-#include <locale>
 #include <codecvt>
-
-#include <Common.h>
+#include <locale>
+#include <string>
+#include <list>
 
 namespace utils {
 inline std::wstring s2ws(const std::string &str)
@@ -72,4 +72,4 @@ private:
 };
 } // namespace utils
 
-#endif // C_FORMAT_H
+#endif // FORMAT_H

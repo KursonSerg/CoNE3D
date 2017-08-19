@@ -1,5 +1,4 @@
-#include <CCamera.h>
-#include <CLogger.h>
+#include <Camera.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>

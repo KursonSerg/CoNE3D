@@ -1,9 +1,7 @@
-#include <CModel.h>
+#include <Model.h>
 
 #include <numeric>
 #include <type_traits>
-
-#include <CLogger.h>
 
 constexpr unsigned int channel = 0;
 
@@ -16,6 +14,9 @@ CModel::CModel(const std::string &path)
     if (!scene)
         throw std::runtime_error( utils::ws2s(utils::CFormat(L"Failed to load scene '%%' with error: %%")
                                               << path << importer.GetErrorString()) );
+
+    utils::Log(utils::CFormat(L"Total number of\n  materials: %%\n  textures: %%\n  meshes: %%\n  lights: %%\n  cameras: %%")
+               << scene->mNumMaterials << scene->mNumTextures << scene->mNumMeshes << scene->mNumLights << scene->mNumCameras, utils::ELogLevel::Info);
 
     _materials.resize(scene->mNumMaterials);
     _meshes.reserve(scene->mNumMeshes);

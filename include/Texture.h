@@ -1,5 +1,5 @@
-#ifndef CTEXTURE_H
-#define CTEXTURE_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include <Common.h>
 
@@ -40,4 +40,4 @@ private:
     int _components;
 };
 
-#endif // CTEXTURE_H
+#endif // TEXTURE_H

@@ -1,5 +1,5 @@
-#ifndef CMODEL_H
-#define CMODEL_H
+#ifndef MODEL_H
+#define MODEL_H
 
 #include <array>
 #include <vector>
@@ -39,4 +39,4 @@ private:
     std::vector<std::unique_ptr<CMesh>> _meshes;
 };
 
-#endif // CMODEL_H
+#endif // MODEL_H

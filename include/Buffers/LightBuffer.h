@@ -24,7 +24,7 @@ private:
     std::vector<uint8_t> _data;
     bool _changed;
 
-    uint8_t * const getData()
+    uint8_t *getData()
     {
         return _data.data();
     }

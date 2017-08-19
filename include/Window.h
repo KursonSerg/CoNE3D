@@ -1,8 +1,7 @@
-#ifndef C_WINDOW_H
-#define C_WINDOW_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include <Common.h>
-#include <CLogger.h>
 
 class CWindow
 {
@@ -72,4 +71,4 @@ private:
     std::unique_ptr<GLFWwindow, GLFWwindowDestroy> _window;
 };
 
-#endif // C_WINDOW_H
+#endif // WINDOW_H

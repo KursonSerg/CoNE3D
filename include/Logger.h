@@ -1,12 +1,12 @@
-#ifndef C_LOGGER_H
-#define C_LOGGER_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
-#include <fstream>
 #include <iostream>
-#include <mutex>
+#include <fstream>
 #include <sstream>
+#include <mutex>
 
-#include <CFormat.h>
+#include <Format.h>
 
 namespace utils {
 enum class ELogLevel {
@@ -60,4 +60,4 @@ inline void Log(const CFormat &format, ELogLevel log_level = ELogLevel::Info)
 }
 } // namespace utils
 
-#endif // C_LOGGER_H
+#endif // LOGGER_H

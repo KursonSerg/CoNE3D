@@ -1,5 +1,4 @@
 #include <Shaders/Shader.h>
-#include <CLogger.h>
 
 CShader::CShader(GLenum type, const std::string &source) :
     _id(glCreateShader(type))

@@ -1,8 +1,7 @@
 #include <Version.h>
-#include <CWindow.h>
-#include <CLogger.h>
-#include <CModel.h>
-#include <CCamera.h>
+#include <Window.h>
+#include <Model.h>
+#include <Camera.h>
 
 #include <Lights/LightRenderer.h>
 #include <Shaders/Program.h>
@@ -14,9 +13,9 @@ public:
         : CWindow(width, height, title)
         , _camera(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(0.0f, 3.5f, 0.0f))
         , _model("assets/hulk/hulk.obj")
+        , _flashlightOn(true)
         , _rotateAngle(0.0f)
         , _rotateSpeed(0.0f)
-        , _spotlightOn(true)
     {
         utils::Log(utils::CFormat(L"CWindowTest::CWindowTest(%%)") << title, utils::ELogLevel::Debug);
 
@@ -50,10 +49,10 @@ private:
     CModel   _model;
 
     CLightRenderer _lights;
-    std::shared_ptr<CDirectionalLight> _directionalLight;
-    std::shared_ptr<CPointLight> _pointLight;
-    std::shared_ptr<CSpotlight> _spotlight;
-    bool _spotlightOn;
+    std::shared_ptr<CDirectionalLight> _sun;
+    std::shared_ptr<CPointLight> _lamp;
+    std::shared_ptr<CSpotlight> _flashlight;
+    bool _flashlightOn;
 
     float _rotateAngle;
     float _rotateSpeed;
@@ -69,17 +68,17 @@ void CWindowTest::Init()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    _directionalLight.reset(new CDirectionalLight(glm::vec3(1.0f, 1.0f, 0.0f)));
-    _directionalLight->setAmbientIntensity(0.01f);
-    _directionalLight->setDiffuseIntensity(2.0f);
-    _directionalLight->setColor(glm::vec3(1.0f, 0.2f, 0.0f));
-    _lights.addLight(_directionalLight);
+    _sun.reset(new CDirectionalLight(glm::vec3(1.0f, 1.0f, 0.0f)));
+    _sun->setAmbientIntensity(0.01f);
+    _sun->setDiffuseIntensity(2.0f);
+    _sun->setColor(glm::vec3(1.0f, 0.2f, 0.0f));
+    _lights.addLight(_sun);
 
-    _pointLight.reset(new CPointLight(glm::vec3(-1.0f, 1.0f, 2.0f)));
-    _pointLight->setAmbientIntensity(0.01f);
-    _pointLight->setDiffuseIntensity(30.0f);
-    _pointLight->setColor(glm::vec3(1.0f, 0.7f, 0.0f));
-    _lights.addLight(_pointLight);
+    _lamp.reset(new CPointLight(glm::vec3(-1.0f, 1.0f, 2.0f)));
+    _lamp->setAmbientIntensity(0.01f);
+    _lamp->setDiffuseIntensity(30.0f);
+    _lamp->setColor(glm::vec3(1.0f, 0.7f, 0.0f));
+    _lights.addLight(_lamp);
 }
 
 void CWindowTest::Update(float deltaTime)
@@ -117,24 +116,24 @@ void CWindowTest::Render()
         glm::mat4 modelMatrix = glm::rotate( glm::mat4(1.0f), glm::radians(_rotateAngle), glm::vec3(0.0f, 1.0f, 0.0f) );
         glUniformMatrix4fv(current.getUniform("modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
-        if (_spotlightOn && !_spotlight)
+        if (_flashlightOn && !_flashlight)
         {
 //            _spotlight.reset(new CSpotlight(glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(-0.5f, 0.0f, -1.5f), 10.0f));
-            _spotlight.reset(new CSpotlight(_camera.getPosition(), _camera.getDirection(), 10.0f));
-            _spotlight->setAmbientIntensity(0.01f);
-            _spotlight->setDiffuseIntensity(50.0f);
-            _spotlight->setColor(glm::vec3(0.0f, 0.2f, 1.0f));
-            _lights.addLight(_spotlight);
+            _flashlight.reset(new CSpotlight(_camera.getPosition(), _camera.getDirection(), 10.0f));
+            _flashlight->setAmbientIntensity(0.01f);
+            _flashlight->setDiffuseIntensity(50.0f);
+            _flashlight->setColor(glm::vec3(0.0f, 0.2f, 1.0f));
+            _lights.addLight(_flashlight);
         }
-        else if (!_spotlightOn && _spotlight)
+        else if (!_flashlightOn && _flashlight)
         {
-            _spotlight.reset();
+            _flashlight.reset();
         }
 
-        if (GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && _spotlight)
+        if (GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && _flashlight)
         {
-            _spotlight->setPosition(_camera.getPosition());
-            _spotlight->setDirection(_camera.getDirection());
+            _flashlight->setPosition(_camera.getPosition());
+            _flashlight->setDirection(_camera.getDirection());
         }
 
         _lights.render();
@@ -176,7 +175,7 @@ void CWindowTest::Key(int key, int action, int mods)
         }
     } else if (key == GLFW_KEY_F) {
         if (action == GLFW_PRESS) {
-            _spotlightOn = !_spotlightOn;
+            _flashlightOn = !_flashlightOn;
         }
     }
 }

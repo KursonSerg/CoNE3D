@@ -4,8 +4,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <CLogger.h>
-
 CShaderParser::CShaderParser(const std::string &filename)
 {
     parse(utils::getBasePath(filename), utils::getFilename(filename), 0);

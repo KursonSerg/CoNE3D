@@ -4,7 +4,7 @@
 #include <array>
 #include <glm/glm.hpp>
 
-#include <CTexture.h>
+#include <Texture.h>
 #include <Buffers/MaterialBuffer.h>
 
 class CMaterial final

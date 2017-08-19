@@ -1,6 +1,5 @@
 #include <Shaders/Program.h>
 #include <Shaders/ShaderParser.h>
-#include <CLogger.h>
 
 #include <vector>
 #include <Bindings.glsl>

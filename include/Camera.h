@@ -1,5 +1,5 @@
-#ifndef CCAMERA_H
-#define CCAMERA_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -77,4 +77,4 @@ private:
     CCameraBuffer _buffer;
 };
 
-#endif // CCAMERA_H
+#endif // CAMERA_H

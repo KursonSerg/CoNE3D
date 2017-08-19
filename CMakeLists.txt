@@ -113,25 +113,25 @@ set(SHADERS
 # List includes
 set(INCS
     include/Common.h
-    include/CFormat.h
-    include/CLogger.h
-    include/CWindow.h
+    include/Format.h
+    include/Logger.h
+    include/Window.h
+    include/Camera.h
+    include/Texture.h
     include/Material.h
-    include/CModel.h
-    include/CCamera.h
-    include/CTexture.h)
+    include/Model.h)
 
 # List sources
 set(SRCS
     src/Main.cpp
     src/Common.cpp
-    src/CFormat.cpp
-    src/CLogger.cpp
-    src/CWindow.cpp
+    src/Format.cpp
+    src/Logger.cpp
+    src/Window.cpp
+    src/Camera.cpp
+    src/Texture.cpp
     src/Material.cpp
-    src/CModel.cpp
-    src/CCamera.cpp
-    src/CTexture.cpp)
+    src/Model.cpp)
 
 # Compiler flags
 if(MSVC)

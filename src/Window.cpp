@@ -1,4 +1,4 @@
-#include <CWindow.h>
+#include <Window.h>
 
 CWindow::CWindow(int width, int height, const std::wstring &title)
 {
@@ -30,7 +30,7 @@ CWindow::CWindow(int width, int height, const std::wstring &title)
     utils::Log(utils::CFormat(L"OpenGL version %%.%% loaded")
                << GLVersion.major << GLVersion.minor, utils::ELogLevel::Debug);
 
-#ifndef NDEBUG
+#if 0//ndef NDEBUG
     if (glDebugMessageCallback) {
         utils::Log(L"Registering OpenGL debug message callback...", utils::ELogLevel::Debug);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);

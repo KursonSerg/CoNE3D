@@ -10,6 +10,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <Logger.h>
+
 #define UNUSED(x) ( (void)(x) )
 
 #define BUFFER_OFFSET(x) ( reinterpret_cast<const void *>(x) )
