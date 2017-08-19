@@ -70,7 +70,7 @@ void CProgram::loadUniforms()
 
         GLint size;
         GLenum type;
-        glGetActiveUniform(_id, static_cast<GLuint>(i), MAX_LENGTH, &length, &size, &type, name);
+        glGetActiveUniform(_id, i, MAX_LENGTH, &length, &size, &type, name);
         GLint location = glGetUniformLocation(_id, name);
 
         if (location >= 0 && name[0] == 's')
@@ -133,7 +133,7 @@ void CProgram::loadUniformBlocks()
                   << ", size: " << size
                   << ", uniforms: " << uniformsNumber << ")";
 
-        for (int j = 0; j < uniformsNumber; ++j)
+        for (GLint j = 0; j < uniformsNumber; ++j)
         {
             glGetActiveUniformName(_id, indices[j], MAX_LENGTH, &length, name);
             logStream << std::endl << "  Uniform #" << j << ": " << name

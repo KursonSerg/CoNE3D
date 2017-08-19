@@ -15,8 +15,10 @@ CModel::CModel(const std::string &path)
         throw std::runtime_error( utils::ws2s(utils::CFormat(L"Failed to load scene '%%' with error: %%")
                                               << path << importer.GetErrorString()) );
 
-    utils::Log(utils::CFormat(L"Total number of\n  materials: %%\n  textures: %%\n  meshes: %%\n  lights: %%\n  cameras: %%")
-               << scene->mNumMaterials << scene->mNumTextures << scene->mNumMeshes << scene->mNumLights << scene->mNumCameras, utils::ELogLevel::Info);
+    utils::Log(utils::CFormat(L"Scene contains:\n  Materials: %%\n  Textures: %%\n"
+                              L"  Meshes: %%\n  Animations: %%\n  Lights: %%\n  Cameras: %%")
+               << scene->mNumMaterials << scene->mNumTextures << scene->mNumMeshes << scene->mNumAnimations
+               << scene->mNumLights << scene->mNumCameras, utils::ELogLevel::Info);
 
     _materials.resize(scene->mNumMaterials);
     _meshes.reserve(scene->mNumMeshes);

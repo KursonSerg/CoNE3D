@@ -16,6 +16,7 @@ public:
 private:
     CLightBuffers _lightBuffers;
     std::list<std::weak_ptr<CLight>> _lights;
+    bool _forceUpdate;
 };
 
 #endif // LIGHTRENDERER_H

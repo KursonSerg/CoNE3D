@@ -1,6 +1,7 @@
 #include <Lights/LightRenderer.h>
 
 CLightRenderer::CLightRenderer()
+    : _forceUpdate(false)
 {
 }
 
@@ -8,22 +9,25 @@ void CLightRenderer::addLight(const std::shared_ptr<CLight> &light)
 {
     if (light) {
         _lights.push_back(light);
+        _forceUpdate = true;
     }
 }
 
 void CLightRenderer::render()
 {
     unsigned index = 0;
-    bool force = false;
     for (auto it = _lights.begin(); it != _lights.end();)
     {
         if (auto light = it->lock()) {
-            _lightBuffers.setLightBuffer(index, light->_buffer, force);
+            _lightBuffers.setLightBuffer(index, light->_buffer, _forceUpdate);
             ++it; ++index;
         } else {
             it = _lights.erase(it);
-            force = true;
+            _forceUpdate = true;
         }
     }
-    _lightBuffers.setLightsNumber(static_cast<GLuint>(_lights.size()));
+    if (_forceUpdate) {
+        _lightBuffers.setLightsNumber(static_cast<GLuint>(_lights.size()));
+        _forceUpdate = false;
+    }
 }
